@@ -1,8 +1,9 @@
-# from urllib import request
+# https://realpython.com/beautiful-soup-web-scraper-python/
 import requests
 from bs4 import BeautifulSoup
 
 FILM_URL = "https://www.ubu.com/film/index.html"
+BASE_FILM_URL = "https://www.ubu.com/film/"
 content_type = "artists"
 download_path = "/home/lee/Videos/ubuweb"
 
@@ -15,4 +16,6 @@ def list_artists(url):
 
 artist_elements = list_artists(FILM_URL)
 for artist in artist_elements:
-    print(artist.text.strip())
+    artist_name = artist.text.strip() 
+    artist_url = artist["href"]
+    print(f'Artist {artist_name} is at URL {BASE_FILM_URL+artist_url}')
