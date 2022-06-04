@@ -2,12 +2,19 @@
 from models import Artist, Work, Page
 import random
 from constants import *
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s - %(message)s",
+                    filename="transfers.log",
+                    filemode="a"
+        )
 
 def download_random_work_from(artists):
     page = Page()
     r = len(artists)
     artist = artists[random.choice(range(r))]
-    print(artist)
+    logging.debug(f"Artist is: {print(artist)}")
     artist_works = page.get_artist_works(artist)
     r = len(artist_works)
     work = artist_works[random.choice(range(r))]
@@ -15,7 +22,7 @@ def download_random_work_from(artists):
     work.download_work()
 
 def download_all_works_from(artist):
-    print(artist)
+    logging.debug(f"Artist is: {print(artist)}")
     page = Page()
     artist_works = page.get_artist_works(artist)
     for work in artist_works:
@@ -26,9 +33,11 @@ def download_all_works_from(artist):
 def main():
     page = Page()
     artists_page = page.get_artists(FILM_URL)
-    r = len(artists_page)
+    for artist in artists_page:
+        download_all_works_from(artist)
+    # r = len(artists_page)
+    # download_all_works_from(artists_page[random.choice(range(r))])
     # download_random_work_from(artists_page)
-    download_all_works_from(artists_page[random.choice(range(r))])
     # https://www.ubu.com/film/clarke_ornette.html
     # this index uses Javascript to render the link to media. the
     # streaming video uses a service called https://criticalcommons.org/embed?m=fwqF8eomo

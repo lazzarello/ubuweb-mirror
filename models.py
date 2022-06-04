@@ -16,6 +16,7 @@ from os.path import exists
 from constants import *
 # Javascript rendering
 from requests_html import HTMLSession
+import logging
 
 @dataclass
 class Artist:
@@ -46,7 +47,7 @@ class Work:
             if moviename is not None:
                 self.download_url = BASE_FILM_URL + moviename["href"]
             else:
-                print("reload and run with a dynamic scraper. Link might be javascript")
+                logging.info("Reload URL and run with a dynamic scraper. Link might be javascript")
                 session = HTMLSession()
                 response = session.get(work.url)
                 response.html.render()
@@ -60,7 +61,7 @@ class Work:
         video = soup.find("div", class_="ubucontainer")
         iframe = video.find("iframe")
         if iframe is None:
-            print("iframe is absent. Try dynamic scraper")
+            logging.info("iframe for alternate work is absent. Try dynamic scraper to render javascript")
             session = HTMLSession()
             response = session.get(self.url)
             response.html.render()
@@ -77,6 +78,7 @@ class Work:
             url_parts = urlparse(self.download_url)
             path = url_parts.path.split("/")
             filename = DOWNLOAD_PATH + path[-1:][0]
+            logging.debug(filename)
             print(filename)
             # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
             size_in_bytes = int(response.headers.get('content-length', 0))
@@ -89,11 +91,12 @@ class Work:
                         file.write(data)
                 progress_bar.close()
             else:
-                print('file exists, write a function to check for partial downloads')
+                logging.debug('file exists, write a function to check for partial downloads')
         else:
-            print("whoopsy daisy, no local download, need alternate download function")
+            logging.info("whoopsy daisy, no local download, need alternate download function")
             self.download_alternate_work()
 
+# TODO: refactor this class to have a Page base class and subclasses for different types of page
 class Page:
     def get_tables(self, page):
         soup = BeautifulSoup(page.content, "html.parser")
@@ -115,7 +118,7 @@ class Page:
             links = tables[1].find_all("a")
             return links
         else:
-            print(f"server redirected to {ERROR_URL}")
+            logging.debug(f"server redirected to {ERROR_URL}")
             return ERROR_URL
 
     def get_artists(self, url):
