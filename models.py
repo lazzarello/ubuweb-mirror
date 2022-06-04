@@ -15,6 +15,8 @@ class Artist:
     id: int = None
     description: str = None
     born: int = None
+    broken: bool = False
+    dmca: bool = False
 
 @dataclass
 class Work:
@@ -30,40 +32,58 @@ class Work:
         page = requests.get(work.url)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
+        # TODO: test downloaded file for a video type, if not call alternate download function
+        # to use vimeo link via youtube-dl
         if video is not None:
             moviename = video.find("a", id="moviename") 
             if moviename is not None:
                 self.download_url = BASE_FILM_URL + moviename["href"]
         return work
 
+    def download_alternate_work(self, work):
+        # we're here because the download link failed
+        # There may be an alternative link to Vimeo, which we can download
+        # via youtube-dl
+        page = requests.get(work.url)
+        soup = BeautifulSoup(page.content, "html.parser")
+        video = soup.find("div", class_="ubucontainer")
+        iframe = video.find("iframe")
+        download_string = ["youtube-dl", iframe["src"]]
+        return download_string
+
     def download_work(self):
         response = requests.get(self.download_url, stream=True)
-        url_parts = urlparse(self.download_url)
-        path = url_parts.path.split("/")
-        filename = DOWNLOAD_PATH + path[-1:][0]
-        print(filename)
-        # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
-        size_in_bytes = int(response.headers.get('content-length', 0))
-        block_size = 1024
-        progress_bar = tqdm(total=size_in_bytes, unit='iB', unit_scale=True)
-        if exists(filename) is False:
-            with open(filename, "wb") as file:
-                for data in response.iter_content(block_size):
-                    progress_bar.update(len(data))
-                    file.write(data)
-            progress_bar.close()
+        if response.url != ERROR_URL:
+            url_parts = urlparse(self.download_url)
+            path = url_parts.path.split("/")
+            filename = DOWNLOAD_PATH + path[-1:][0]
+            print(filename)
+            # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
+            size_in_bytes = int(response.headers.get('content-length', 0))
+            block_size = 1024
+            progress_bar = tqdm(total=size_in_bytes, unit='iB', unit_scale=True)
+            if exists(filename) is False:
+                with open(filename, "wb") as file:
+                    for data in response.iter_content(block_size):
+                        progress_bar.update(len(data))
+                        file.write(data)
+                progress_bar.close()
+            else:
+                print('file exists, write a function to check for partial downloads')
         else:
-            print('file exists, write a function to check for partial downloads')
-            # maybe add an error condition here?
-
+            print("whoopsy daisy, no local download, need alternate download function")
 
 class Page:
     def get_links(self, url):
         page = requests.get(url)
-        soup = BeautifulSoup(page.content, "html.parser")
-        tables = soup.find_all("table")
-        links = tables[1].find_all("a")
-        return links
+        if page.url != ERROR_URL:
+            soup = BeautifulSoup(page.content, "html.parser")
+            tables = soup.find_all("table")
+            links = tables[1].find_all("a")
+            return links
+        else:
+            print(f"server redirected to {ERROR_URL}")
+            return ERROR_URL
 
     def get_artists(self, url):
         links = self.get_links(url)
