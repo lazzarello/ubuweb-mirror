@@ -26,7 +26,7 @@ class Work:
     # this doesn't work good for printing attributes
     artist = None
 
-    def set_work_url(self, work):
+    def set_download_url(self, work):
         page = requests.get(work.url)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
