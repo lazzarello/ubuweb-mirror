@@ -23,21 +23,17 @@ def download_all_works_from(artist):
         if work.download_url:
             work.download_work()
 
-def download_works_from_vimeo_for(artist):
-    print(artist)
-    page = Page()
-    artist_works = page.get_artist_works(artist)
-    for work in artist_works:
-        work.set_download_url(work)
-        work.download_alternate_work()
-
 def main():
     page = Page()
     artists_page = page.get_artists(FILM_URL)
     r = len(artists_page)
     # download_random_work_from(artists_page)
     download_all_works_from(artists_page[random.choice(range(r))])
-    # download_works_from_vimeo_for(artists_page[random.choice(range(r))])
+    # https://www.ubu.com/film/clarke_ornette.html
+    # this index uses Javascript to render the link to media. the
+    # streaming video uses a service called https://criticalcommons.org/embed?m=fwqF8eomo
+    # which is not valid in youtube-dl
+    # download_all_works_from(artists_page[215])
 
 if __name__ == "__main__":
     main()

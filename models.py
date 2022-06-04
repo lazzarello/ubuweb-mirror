@@ -14,19 +14,18 @@ from tqdm import tqdm
 from os.path import exists
 # custom constants
 from constants import *
+# Javascript rendering
+from requests_html import HTMLSession
 
 @dataclass
 class Artist:
     name: str = ""
     url: str = ""
     id: int = None
-    description: str = None
+    description: str = ""
     born: int = None
     broken: bool = False
     dmca: bool = False
-
-    def set_description(self, content):
-        self.description = content
 
 @dataclass
 class Work:
@@ -35,19 +34,24 @@ class Work:
     description: str = None
     url: str = None
     download_url: str = None
-    # this doesn't work good for printing attributes
     artist = None
 
     def set_download_url(self, work):
+        # TODO remove work object as a thing to pass in, it's redundant
         page = requests.get(work.url)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
-        # TODO: test downloaded file for a video type, if not call alternate download function
-        # to use vimeo link via youtube-dl
         if video is not None:
             moviename = video.find("a", id="moviename") 
             if moviename is not None:
                 self.download_url = BASE_FILM_URL + moviename["href"]
+            else:
+                print("reload and run with a dynamic scraper. Link might be javascript")
+                session = HTMLSession()
+                response = session.get(work.url)
+                response.html.render()
+                moviename = response.html.find("#moviename") 
+                self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
         return work
 
     def download_alternate_work(self):
@@ -55,6 +59,13 @@ class Work:
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         iframe = video.find("iframe")
+        if iframe is None:
+            print("iframe is absent. Try dynamic scraper")
+            session = HTMLSession()
+            response = session.get(self.url)
+            response.html.render()
+            elem = response.html.find("iframe") 
+            iframe = elem[0].attrs
         output_template = DOWNLOAD_PATH + "%(title)s.%(ext)s"
         ydl_opts = {"outtmpl" : output_template}
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -89,8 +100,10 @@ class Page:
         tables = soup.find_all("table")
         return tables
 
-    # refactor to reuse the response for many functions
-    def get_artist_description(self, tables):
+    # refactor this and get_links to reuse the response for many functions
+    def get_artist_description(self, url):
+        page = requests.get(url)
+        tables = self.get_tables(page)
         storycontent = tables[1].find("div", class_="storycontent")
         description = storycontent.find_all("p")
         return description
@@ -106,12 +119,15 @@ class Page:
             return ERROR_URL
 
     def get_artists(self, url):
+        # refactor to only do one request, not two
         links = self.get_links(url)
+        # description = self.get_artist_description(url)
         artists = []
         for artist in links:
             a = Artist()
             a.name = artist.text.strip() 
             a.url = BASE_FILM_URL + artist["href"]
+            # a.description = description
             artists.append(a)
         # this convention removes the left nav bar links.
         artists.pop(0)

@@ -9,6 +9,6 @@ for education, entertainment and collective spaces. As a direct challenge to the
 
 The current state of the code mirrors everything available from the film section. More sections will come online as the boutique HTML is parsed, collected, understood and re-formed into something helpful to both our human and machine counterparts.
 
-The code functions to be aggressive but not repetitive. It only downloads new contents once. It abstracts when the primary source does not. It maps the conventions found in the psychogeography or each artist's works into objects of data to be used arbitrarily.
+The code functions to be aggressive but not repetitive. It only downloads new contents once. It abstracts when the primary source does not. It maps the conventions found in the psychogeography or each artist's works into objects of data to be used arbitrarily. When there is javascript to obsfucate links, it will guess right.
 
 For more context, see this interview with [Kenneth Goldsmith](https://vimeo.com/60377169) for some of the motivation to create this work.
