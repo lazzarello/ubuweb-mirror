@@ -1,12 +1,19 @@
+# for download_alternate_work function
+from __future__ import unicode_literals
+import youtube_dl
 # https://realpython.com/beautiful-soup-web-scraper-python/
+# data object stuff
 from dataclasses import dataclass, field
+# URL and scraping stuff
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from constants import *
 # Progress bar
 from tqdm import tqdm
+# file utils
 from os.path import exists
+# custom constants
+from constants import *
 
 @dataclass
 class Artist:
@@ -40,16 +47,15 @@ class Work:
                 self.download_url = BASE_FILM_URL + moviename["href"]
         return work
 
-    def download_alternate_work(self, work):
-        # we're here because the download link failed
-        # There may be an alternative link to Vimeo, which we can download
-        # via youtube-dl
-        page = requests.get(work.url)
+    def download_alternate_work(self):
+        page = requests.get(self.url)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         iframe = video.find("iframe")
-        download_string = ["youtube-dl", iframe["src"]]
-        return download_string
+        output_template = DOWNLOAD_PATH + "%(title)s.%(ext)s"
+        ydl_opts = {"outtmpl" : output_template}
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([iframe["src"]])
 
     def download_work(self):
         response = requests.get(self.download_url, stream=True)
@@ -72,6 +78,7 @@ class Work:
                 print('file exists, write a function to check for partial downloads')
         else:
             print("whoopsy daisy, no local download, need alternate download function")
+            self.download_alternate_work()
 
 class Page:
     def get_links(self, url):
