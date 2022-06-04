@@ -25,6 +25,9 @@ class Artist:
     broken: bool = False
     dmca: bool = False
 
+    def set_description(self, content):
+        self.description = content
+
 @dataclass
 class Work:
     name: str = ""
@@ -81,11 +84,21 @@ class Work:
             self.download_alternate_work()
 
 class Page:
+    def get_tables(self, page):
+        soup = BeautifulSoup(page.content, "html.parser")
+        tables = soup.find_all("table")
+        return tables
+
+    # refactor to reuse the response for many functions
+    def get_artist_description(self, tables):
+        storycontent = tables[1].find("div", class_="storycontent")
+        description = storycontent.find_all("p")
+        return description
+
     def get_links(self, url):
         page = requests.get(url)
         if page.url != ERROR_URL:
-            soup = BeautifulSoup(page.content, "html.parser")
-            tables = soup.find_all("table")
+            tables = self.get_tables(page)
             links = tables[1].find_all("a")
             return links
         else:
