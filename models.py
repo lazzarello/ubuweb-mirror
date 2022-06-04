@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
 import requests
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from constants import *
+# Progress bar
+from tqdm import tqdm
 
 @dataclass
 class Artist:
@@ -31,9 +34,9 @@ class Work:
                 self.download_url = BASE_FILM_URL + moviename["href"]
         return work
 
-    def download_work(self, url):
-        response = requests.get(url, stream=True)
-        url_parts = urlparse(url)
+    def download_work(self):
+        response = requests.get(self.download_url, stream=True)
+        url_parts = urlparse(self.download_url)
         path = url_parts.path.split("/")
         filename = DOWNLOAD_PATH + path[-1:][0]
         print(filename)

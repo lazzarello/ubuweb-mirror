@@ -1,7 +1,6 @@
 # https://realpython.com/beautiful-soup-web-scraper-python/
 # URL stuff
 import requests
-from urllib.parse import urlparse
 # Scraping the DOM
 from bs4 import BeautifulSoup
 # Progress bar
@@ -53,4 +52,4 @@ if __name__ == "__main__":
     artist_works = page.get_artist_works(artist)
     work = artist_works[0]
     work.get_work_movie(work)
-    print(work)
+    work.download_work()
