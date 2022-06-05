@@ -9,7 +9,7 @@ for education, entertainment and collective spaces. As a direct challenge to the
 
 The current state of the code mirrors everything available from the film section. More sections will come online as the boutique HTML is parsed, collected, understood and re-formed into something helpful to both our human and machine counterparts.
 
-The code functions to be aggressive but not repetitive. It only downloads new contents once. It abstracts when the primary source does not. It maps the conventions found in the psychogeography or each artist's works into objects of data to be used arbitrarily. When there is javascript to obsfucate links, it will guess right.
+The code functions to be aggressive but not repetitive. It only downloads new contents once. It abstracts when the primary source does not. It maps the conventions found in the psychogeography of each artist's works into objects of data to be used arbitrarily. When there is javascript to obsfucate links, it will guess right.
 
 For more context, see this interview with [Kenneth Goldsmith](https://vimeo.com/60377169) for some of the motivation to create this work.
 
@@ -27,7 +27,7 @@ python main.py
 
 *Notes* 
 
-* The requests-html library will download **a headless version of the Chromium web browser** so it can render JavaScript into static HTML to be scraped. This only happens once and only upon the first `render()` call from this library.
+* The `requests-html` library will download **a headless version of the Chromium web browser** so it can render JavaScript into static HTML to be scraped. This happens once and only once upon the first `render()` call from this library.
 * A meaningful quantity of pages in the primary text are broken or destroyed. There is improvisational poetry in 
   the code to describe these scenarios, though the primary text may change at any time, creating more opportunities
   for improvisation.
@@ -41,7 +41,7 @@ python main.py
 
 ## Reading
 
-TODO: Develop some interesting ways to read through the contents. Ideas include, random artist, random work, shuffle works and playback a range, etc, etc.
+TODO: Develop some interesting ways to read through the contents. Ideas include, random artist, random work, generate a alrogithmically curated show of artist's works, etc, etc.
 
 ## Endnotes
 
@@ -69,10 +69,11 @@ and one Work.
 
 ## TODO
 
+* Include an ORM or something for a local SQLlite
 * Build a better system to uniquely identify artists than array indexes built in the order of <a> tags in the DOM
 * Refactor Page model to only accept a URL object for all methods
 * Optimize requests sent to the primary source in URL class when looking up data
-* Build conventions to extract the "description" for artists and works. This is untagged text floating around the DOM. It's gonna be tough!
+* Build conventions to extract the "description" for artists and works. This is untagged text floating around the DOM.  Perhaps a guess of sibling text to the <table> tag with a word count > x? It's gonna be tough!
 * Develop the reading chapter
 * Extend broken links and zero content pages to a model that will always represent an accurate broken state of the primary text.
 * Add a system to email Kenny G (NOT the WFMU person, whew) this list of broken things. Maybe they'll fix them!
