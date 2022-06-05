@@ -91,7 +91,7 @@ class Work:
                         file.write(data)
                 progress_bar.close()
             else:
-                logging.debug('file exists, write a function to check for partial downloads')
+                logging.debug('file exists, TODO: write a function to check for partial downloads')
         else:
             logging.info("whoopsy daisy, no local download, need alternate download function")
             self.download_alternate_work()
@@ -112,21 +112,24 @@ class Page:
         return description
 
     def get_links(self, url):
-        page = requests.get(url)
-        if page.url != ERROR_URL:
+        try:
+            page = requests.get(url)
             tables = self.get_tables(page)
-            links = tables[1].find_all("a")
+            # Stupid error handling for DMCA takedown pages
+            links = tables[1].find_all("a", string=lambda text: "Marian Goodman" not in text)
             return links
-        else:
-            logging.debug(f"server redirected to {ERROR_URL}")
-            return ERROR_URL
+        except Exception as e:
+            if page.url == ERROR_URL:
+                logging.error(f"Page {page.url} is not found on server", exc_info=True)
+            else:
+                logging.error(f"Page {page.url} has no artist or works", exc_info=True)
 
     def get_artists(self, url):
         # refactor to only do one request, not two
-        links = self.get_links(url)
+        artists_links = self.get_links(url)
         # description = self.get_artist_description(url)
         artists = []
-        for artist in links:
+        for artist in artists_links:
             a = Artist()
             a.name = artist.text.strip() 
             a.url = BASE_FILM_URL + artist["href"]
@@ -137,6 +140,8 @@ class Page:
         return artists
 
     def get_artist_works(self, artist):
+        # not sure why artist is None when run in batch mode
+        logging.debug(f"Artist is: {artist}")
         links = self.get_links(artist.url)
         works = []
         for work in links:
@@ -148,4 +153,6 @@ class Page:
         # this convention removes the left nav bar links.
         for _ in range(2):
             works.pop(0)
+        if len(works) == 0:
+            logging.info(f"Artist {artist.name} has no works on {artist.url}")
         return works
