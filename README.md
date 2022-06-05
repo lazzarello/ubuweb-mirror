@@ -41,7 +41,7 @@ python main.py
 
 ## Reading
 
-TODO: Develop some interesting ways to read through the contents. Ideas include, random artist, random work, generate a alrogithmically curated show of artist's works, etc, etc.
+TODO: Develop some interesting ways to read through the contents. Ideas include, random artist, random work, generate an alrogithmically curated show of artist's works, etc, etc.
 
 ## Endnotes
 
