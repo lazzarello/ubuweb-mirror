@@ -97,6 +97,8 @@ class Work:
             self.download_alternate_work()
 
 # TODO: refactor this class to have a Page base class and subclasses for different types of page
+# Page only takes a url object, never an artist object
+# TODO: build a URL object
 class Page:
     def get_tables(self, page):
         soup = BeautifulSoup(page.content, "html.parser")
