@@ -116,13 +116,15 @@ class Page:
             page = requests.get(url)
             tables = self.get_tables(page)
             # Stupid error handling for DMCA takedown pages
-            links = tables[1].find_all("a", string=lambda text: "Marian Goodman" not in text)
+            # links = tables[1].find_all("a", string=lambda text: "Marian Goodman" not in text or text is not None)
+            # TODO remove magic string and just write the bad data like previously, logging failure
+            links = tables[1].find_all("a")
             return links
         except Exception as e:
             if page.url == ERROR_URL:
                 logging.error(f"Page {page.url} is not found on server", exc_info=True)
             else:
-                logging.error(f"Page {page.url} has no artist or works", exc_info=True)
+                logging.error(f"Page {page.url} has invalid artist or works", exc_info=True)
 
     def get_artists(self, url):
         # refactor to only do one request, not two
