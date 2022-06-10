@@ -36,7 +36,7 @@ python main.py
   our language to express. The resulting primary content cannot be written.
 * The youtube-dl dependency is used to download films from streaming sites. It is a large text, though the reader
   should rarely need to see the contents.
-* The film archive will require aproximately `int` TB of space on your local hard disk.
+* The film archive will require aproximately 630 GB of space on your local hard disk.
 * Each time the reader writes, content which has been previously written will be skipped.
 
 ## Reading
