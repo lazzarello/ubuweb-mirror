@@ -1,3 +1,5 @@
+* write a function to detect which tweet was the last and previous
+* run main in a loop to look for new tweets
 * write log parser to discover failed downloads
 * write log analysys tool to graph download statistics
 
@@ -14,7 +16,3 @@ KG posts stuff to Twitter pretty often, with a single link to the ubuweb.com pag
 Anyhoo, the goal is to have a twitter.py process running with an async poll interval of like...maybe 1 hour...and then do a check for the latest tweet against the previous one. PROBABLY NEED A QUEUE type thing for this and some kind of database to answer the question of "do we already have this content?"
 
 To make it a little more challenging, sometimes the works posted on Twitter are already in the artists index or on the artist's page. But sometimes...they are not!
-
-## Wiring them up...
-
-The output of a Tweet instance is just a URL that could be passed to a Work instance which will just like...download the thing. Let's try it!

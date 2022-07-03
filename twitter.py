@@ -30,9 +30,8 @@ class Tweets:
         response = requests.get(short_url)
         return response.url
 
-'''
-    def get_urls(self, client, user, max_results=5):
-        timeline = client.get_users_tweets(user.data.id, exclude=["retweets", "replies"],
+    def get_urls(self, max_results=5):
+        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
                                            max_results=max_results, tweet_fields="id,text,created_at,attachments")
         tweets = timeline.data
         urls = []
@@ -43,7 +42,3 @@ class Tweets:
             response = requests.get(short_url)
             urls.append(response.url)
         return urls
-
-    def get_latest_tweet_id(self, client, user):
-        return False 
-'''

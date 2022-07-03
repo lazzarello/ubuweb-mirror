@@ -1,5 +1,5 @@
 # custom data models
-from models import Page
+from models import Page,Work
 import random
 from constants import *
 import logging
@@ -41,9 +41,15 @@ def full_download_run():
     # r = len(artists_page)
     # download_all_works_from(artists_page[random.choice(range(r))])
 
-def main():
-    tw = Tweets()
+def download_from_tweet():
+    t = Tweets()
     url = tw.get_current_url()
-    print(url)
+    work = Work()
+    work.url = url
+    work.download_work()
+
+def main():
+    download_from_tweet()
+
 if __name__ == "__main__":
     main()
