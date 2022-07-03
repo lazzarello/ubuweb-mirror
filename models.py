@@ -37,9 +37,8 @@ class Work:
     download_url: str = None
     artist = None
 
-    def set_download_url(self, work):
-        # TODO remove work object as a thing to pass in, it's redundant
-        page = requests.get(work.url)
+    def set_download_url(self, url):
+        page = requests.get(url)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         if video is not None:
@@ -49,11 +48,14 @@ class Work:
             else:
                 logging.info("Reload URL and run with a dynamic scraper. Link might be javascript")
                 session = HTMLSession()
-                response = session.get(work.url)
+                response = session.get(url)
                 response.html.render()
                 moviename = response.html.find("#moviename") 
-                self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
-        return work
+                if len(moviename) == 0:
+                    self.download_url = None
+                else:
+                    self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
+        return self.download_url
 
     def download_alternate_work(self):
         page = requests.get(self.url)
@@ -73,7 +75,12 @@ class Work:
             ydl.download([iframe["src"]])
 
     def download_work(self):
-        response = requests.get(self.download_url, stream=True)
+        if self.download_url is not None:
+            response = requests.get(self.download_url, stream=True)
+        else:
+            logging.info("whoopsy daisy, can't find a download_url, try alternate download function")
+            self.download_alternate_work()
+            return None
         if response.url != ERROR_URL:
             url_parts = urlparse(self.download_url)
             path = url_parts.path.split("/")
@@ -104,6 +111,12 @@ class Page:
         soup = BeautifulSoup(page.content, "html.parser")
         tables = soup.find_all("table")
         return tables
+
+    def get_content_div(self, page):
+        soup = BeautifulSoup(page.content, "html.parser")
+        divs = soup.find("div", class_="ububody")
+        
+        
 
     # refactor this and get_links to reuse the response for many functions
     def get_artist_description(self, url):
