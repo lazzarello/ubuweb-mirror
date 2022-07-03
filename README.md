@@ -25,6 +25,16 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
+## Twitter
+
+It's possible to enable a service to monitor @ubuweb on Twitter and extract new tweets with film contents. This requires a Twitter developer account. Put your authentication creds into the `environments.sample` file and copy it to a file named `environments` so it won't get checked into source control. Run the following
+
+```
+cp environments.sample environments
+source environments
+python twitter.py
+```
+
 *Notes* 
 
 * The `requests-html` library will download **a headless version of the Chromium web browser** so it can render JavaScript into static HTML to be scraped. This happens once and only once upon the first `render()` call from this library.
