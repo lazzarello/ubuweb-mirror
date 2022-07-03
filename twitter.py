@@ -3,42 +3,56 @@ import requests
 import re
 from os import environ
 
-CONSUMER_KEY = environ['CONSUMER_KEY']
-CONSUMER_KEY_SECRET = environ['CONSUMER_KEY_SECRET']
-BEARER_TOKEN = environ['BEARER_TOKEN']
-ACCESS_TOKEN = environ['ACCESS_TOKEN']
-ACCESS_TOKEN_SECRET = environ['ACCESS_TOKEN_SECRET']
-url_regex_string = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
+URL_REGEX_STRING = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
 
 class Tweets:
     def __init__(self):
-        self.consumer_key = CONSUMER_KEY
-        self.consumer_key_secret = CONSUMER_KEY_SECRET
-        self.access_token = ACCESS_TOKEN
-        self.access_token_secret = ACCESS_TOKEN_SECRET
-        self.bearer_token = BEARER_TOKEN
-        self.client = tweepy.Client(BEARER_TOKEN)
+        self.consumer_key = environ['CONSUMER_KEY']
+        self.consumer_key_secret = environ['CONSUMER_KEY_SECRET']
+        self.access_token = environ['ACCESS_TOKEN']
+        self.access_token_secret = environ['ACCESS_TOKEN_SECRET']
+        self.bearer_token = environ['BEARER_TOKEN']
+        self.client = tweepy.Client(self.bearer_token)
         self.ubuweb_user = self.client.get_user(username="ubuweb")
+        self.last_tweets = [0]
+
+    def get_timeline(self, max_results=5):
+        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
+                                           max_results=max_results, tweet_fields="id,text,created_at,attachments")
+        return timeline
 
     def get_current_url(self):
-        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
-                                           max_results=5, tweet_fields="id,text,created_at,attachments")
+        timeline = self.get_timeline()
         tweets = timeline.data
         tweet_text = tweets[0].text
-        short_url_match = re.search(url_regex_string, tweet_text)
+        short_url_match = re.search(URL_REGEX_STRING, tweet_text)
         short_url = short_url_match.group(0)
         response = requests.get(short_url)
         return response.url
 
     def get_urls(self, max_results=5):
-        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
-                                           max_results=max_results, tweet_fields="id,text,created_at,attachments")
+        timeline = self.get_timeline(max_results)
         tweets = timeline.data
         urls = []
         for tweet in tweets:
             tweet_text = tweet.text
-            short_url_match = re.search(url_regex_string, tweet_text)
+            short_url_match = re.search(URL_REGEX_STRING, tweet_text)
             short_url = short_url_match.group(0)
             response = requests.get(short_url)
             urls.append(response.url)
         return urls
+
+    def get_latest_tweet(self):
+        timeline = self.get_timeline() 
+        tweets = timeline.data
+        tweet_ids = []
+        for tweet in tweets:
+            tid = tweet.id
+            tweet_ids.append(tid)
+        tweet_ids.sort()
+        if tweet_ids[-1] > self.last_tweets[-1]:
+            tweet = self.client.get_tweet(tweet_ids[-1])
+            self.last_tweets = tweet_ids
+        else:
+            tweet = self.client.get_tweet(self.last_tweets[-1])
+        return tweet
