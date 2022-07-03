@@ -3,6 +3,7 @@ from models import Page
 import random
 from constants import *
 import logging
+from twitter import Tweets
 
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(message)s",
@@ -29,7 +30,7 @@ def download_all_works_from(artist):
         if work.download_url:
             work.download_work()
 
-def main():
+def full_download_run():
     page = Page()
     artists_page = page.get_artists(FILM_URL)
     for artist in artists_page:
@@ -40,5 +41,9 @@ def main():
     # r = len(artists_page)
     # download_all_works_from(artists_page[random.choice(range(r))])
 
+def main():
+    tw = Tweets()
+    url = tw.get_current_url()
+    print(url)
 if __name__ == "__main__":
     main()

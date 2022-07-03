@@ -9,19 +9,19 @@ BEARER_TOKEN = environ['BEARER_TOKEN']
 ACCESS_TOKEN = environ['ACCESS_TOKEN']
 ACCESS_TOKEN_SECRET = environ['ACCESS_TOKEN_SECRET']
 url_regex_string = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
-client = tweepy.Client(BEARER_TOKEN)
-ubuweb_user = client.get_user(username="ubuweb")
 
 class Tweets:
     def __init__(self):
-        consumer_key = CONSUMER_KEY
-        consumer_key_secret = CONSUMER_KEY_SECRET
-        access_token = ACCESS_TOKEN
-        access_token_secret = ACCESS_TOKEN_SECRET
-        bearer_token = BEARER_TOKEN
+        self.consumer_key = CONSUMER_KEY
+        self.consumer_key_secret = CONSUMER_KEY_SECRET
+        self.access_token = ACCESS_TOKEN
+        self.access_token_secret = ACCESS_TOKEN_SECRET
+        self.bearer_token = BEARER_TOKEN
+        self.client = tweepy.Client(BEARER_TOKEN)
+        self.ubuweb_user = self.client.get_user(username="ubuweb")
 
-    def get_current_url(self, client, user):
-        timeline = client.get_users_tweets(user.data.id, exclude=["retweets", "replies"],
+    def get_current_url(self):
+        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
                                            max_results=5, tweet_fields="id,text,created_at,attachments")
         tweets = timeline.data
         tweet_text = tweets[0].text
@@ -30,6 +30,7 @@ class Tweets:
         response = requests.get(short_url)
         return response.url
 
+'''
     def get_urls(self, client, user, max_results=5):
         timeline = client.get_users_tweets(user.data.id, exclude=["retweets", "replies"],
                                            max_results=max_results, tweet_fields="id,text,created_at,attachments")
@@ -45,9 +46,4 @@ class Tweets:
 
     def get_latest_tweet_id(self, client, user):
         return False 
-
-def main():
-    tweets = Tweets()
-    print(tweets.get_current_url(client, ubuweb_user))
-
-main()
+'''
