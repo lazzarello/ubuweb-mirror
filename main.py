@@ -19,14 +19,14 @@ def download_random_work_from(artists):
     artist_works = page.get_artist_works(artist)
     r = len(artist_works)
     work = artist_works[random.choice(range(r))]
-    work.set_download_url(work)
+    work.set_download_url(work.url)
     work.download_work()
 
 def download_all_works_from(artist):
     page = Page()
     artist_works = page.get_artist_works(artist)
     for work in artist_works:
-        work.set_download_url(work)
+        work.set_download_url(work.url)
         if work.download_url:
             work.download_work()
 
