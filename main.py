@@ -4,7 +4,10 @@ import random
 from constants import *
 import logging
 from twitter import Tweets
+from time import sleep
+import polling
 
+twitter_poll_freq = 10
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(message)s",
                     filename="transfers.log",
@@ -49,7 +52,18 @@ def download_from_tweet():
     work.download_work()
 
 def main():
-    download_from_tweet()
+    t = Tweets()
+    last_tweet = None
+    while True:
+        current_tweet = t.get_latest_tweet().data
+        if last_tweet is None:
+            last_tweet = current_tweet
+        elif last_tweet.id == current_tweet.id:
+            print("No new tweets")
+        else:
+            last_tweet = current_tweet
+            print(f"new tweet found! {current_tweet.data}")
+        sleep(twitter_poll_freq)
 
 if __name__ == "__main__":
     main()

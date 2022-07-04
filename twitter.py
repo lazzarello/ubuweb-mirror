@@ -54,5 +54,7 @@ class Tweets:
             tweet = self.client.get_tweet(tweet_ids[-1])
             self.last_tweets = tweet_ids
         else:
+            # TODO: optimize this by returning the cached tweet from the previous run.
+            # check if the library does this already, not sure.
             tweet = self.client.get_tweet(self.last_tweets[-1])
         return tweet
