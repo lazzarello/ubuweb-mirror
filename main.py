@@ -7,7 +7,7 @@ from twitter import Tweets
 from time import sleep
 import polling
 
-twitter_poll_freq = 10
+twitter_poll_freq = 3600
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(message)s",
                     filename="transfers.log",
