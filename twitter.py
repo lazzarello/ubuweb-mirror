@@ -3,8 +3,6 @@ import requests
 import re
 from os import environ
 
-URL_REGEX_STRING = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
-
 class Tweets:
     def __init__(self):
         self.consumer_key = environ['CONSUMER_KEY']

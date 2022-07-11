@@ -6,7 +6,10 @@ import logging
 from twitter import Tweets
 from time import sleep
 import polling
+import re
+import requests
 
+URL_REGEX_STRING = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
 twitter_poll_freq = 3600
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(message)s",
@@ -44,9 +47,15 @@ def full_download_run():
     # r = len(artists_page)
     # download_all_works_from(artists_page[random.choice(range(r))])
 
-def download_from_tweet():
-    t = Tweets()
-    url = tw.get_current_url()
+def get_url_from_text(text):
+    short_url_match = re.search(URL_REGEX_STRING, text)
+    short_url = short_url_match.group(0)
+    response = requests.get(short_url)
+    return response.url
+
+def download_from_tweet(tweet):
+    print(tweet.text)
+    url = get_url_from_text(tweet.text)
     work = Work()
     work.url = url
     work.download_work()
@@ -58,11 +67,13 @@ def main():
         current_tweet = t.get_latest_tweet().data
         if last_tweet is None:
             last_tweet = current_tweet
+            download_from_tweet(current_tweet)
         elif last_tweet.id == current_tweet.id:
             print("No new tweets")
         else:
-            last_tweet = current_tweet
             print(f"new tweet found! {current_tweet.data}")
+            download_from_tweet(current_tweet)
+            last_tweet = current_tweet
         sleep(twitter_poll_freq)
 
 if __name__ == "__main__":
