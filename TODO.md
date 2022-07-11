@@ -1,5 +1,4 @@
-* write a function to detect which tweet was the last and previous
-* run main in a loop to look for new tweets
+* add FilmWork and SoundWork to inherit from Work
 * write log parser to discover failed downloads
 * write log analysys tool to graph download statistics
 
