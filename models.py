@@ -37,26 +37,6 @@ class Work:
     download_url: str = None
     artist = None
 
-    def set_download_url(self, url):
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, "html.parser")
-        video = soup.find("div", class_="ubucontainer")
-        if video is not None:
-            moviename = video.find("a", id="moviename") 
-            if moviename is not None:
-                self.download_url = BASE_FILM_URL + moviename["href"]
-            else:
-                logging.info("Reload URL and run with a dynamic scraper. Link might be javascript")
-                session = HTMLSession()
-                response = session.get(url)
-                response.html.render()
-                moviename = response.html.find("#moviename") 
-                if len(moviename) == 0:
-                    self.download_url = None
-                else:
-                    self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
-        return self.download_url
-
     def download_alternate_work(self):
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, "html.parser")
@@ -103,6 +83,43 @@ class Work:
             logging.info("whoopsy daisy, no local download, need alternate download function")
             self.download_alternate_work()
 
+@dataclass
+class FilmWork(Work):
+    def get_media_url(self, url):
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, "html.parser")
+        video = soup.find("div", class_="ubucontainer")
+        if video is not None:
+            moviename = video.find("a", id="moviename") 
+            if moviename is not None:
+                self.download_url = BASE_FILM_URL + moviename["href"]
+            else:
+                logging.info("Reload URL and run with a dynamic scraper. Link might be javascript")
+                session = HTMLSession()
+                response = session.get(url)
+                response.html.render()
+                moviename = response.html.find("#moviename") 
+                if len(moviename) == 0:
+                    self.download_url = None
+                else:
+                    self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
+        return self.download_url
+
+@dataclass
+class SoundWork(Work):
+    # This is just a preview, the real links are in a less well tagged ol element, but that ight be the only one so yuea!
+    def get_media_url(self, url):
+        session = HTMLSession()
+        response = session.get(url)
+        response.html.render()
+        player = response.html.find(".audiojs")
+        audio = player[0].find("audio")
+        return audio[0].attrs["src"]
+
+    def download_work(self, url):
+        self.download_url = self.get_media_url(url)
+        return self.download_url
+
 # TODO: refactor this class to have a Page base class and subclasses for different types of page
 # Page only takes a url object, never an artist object
 # TODO: build a URL object
@@ -116,8 +133,6 @@ class Page:
         soup = BeautifulSoup(page.content, "html.parser")
         divs = soup.find("div", class_="ububody")
         
-        
-
     # refactor this and get_links to reuse the response for many functions
     def get_artist_description(self, url):
         page = requests.get(url)
