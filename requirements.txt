@@ -1,5 +1,6 @@
 requests
 requests-html
+lxml[html-clean]
 beautifulsoup4
 tqdm
 youtube-dl

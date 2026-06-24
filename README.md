@@ -15,13 +15,36 @@ For more context, see this interview with [Kenneth Goldsmith](https://vimeo.com/
 
 # Instructions for The Reader
 
-## Writing
+## Installation
 
-Before we can learn to read, we must learn to write. Reading and writing can be learned concurrently but writing must always come first.
+The code is now organized as a Python module for easy importing and reuse.
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+## Usage
+
+### As a Module
+
+You can now import and use ubu in your own scripts:
+
+```python
+import ubu
+
+# Download all works from all artists
+ubu.full_download_run()
+
+# Or work with individual components
+page = ubu.Page()
+artists = page.get_artists(ubu.FILM_URL)
+ubu.download_all_works_from(artists[0])
+```
+
+### As a Script
 
 To write the whole film archive to a single directory on your computer, run the program like so with an edition of Python at 3.7 or greater. The reader is expected to have previously read stories about the python computer programming language.
 ```
-python -m pip install -r requirements.txt
 python main.py
 ```
 
