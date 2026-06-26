@@ -33,12 +33,16 @@ def download_random_work_from(artists):
         artists: List of Artist objects
     """
     page = Page()
-    r = len(artists)
-    artist = artists[random.choice(range(r))]
-    logging.debug(f"Artist is: {print(artist)}")
+    if not artists:
+        logging.warning("No artists provided to download a random work from.")
+        return
+    artist = random.choice(artists)
+    logging.debug(f"Artist is: {artist}")
     artist_works = page.get_artist_works(artist)
-    r = len(artist_works)
-    work = artist_works[random.choice(range(r))]
+    if not artist_works:
+        logging.warning(f"No works found for artist: {artist.name}")
+        return
+    work = random.choice(artist_works)
     work.set_download_url(work.url)
     work.download_work()
 
