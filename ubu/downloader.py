@@ -144,8 +144,10 @@ def get_url_from_text(text):
         str: The resolved full URL
     """
     short_url_match = re.search(URL_REGEX_STRING, text)
+    if not short_url_match:
+        raise ValueError("No URL found in the provided text.")
     short_url = short_url_match.group(0)
-    response = requests.get(short_url)
+    response = requests.get(short_url, timeout=10)
     return response.url
 
 
