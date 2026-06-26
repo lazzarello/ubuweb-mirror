@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, create-module ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+    
+    - name: Install dependencies
+      run: |
+        uv sync
+    
+    - name: Run tests
+      run: |
+        uv run python tests/run_tests.py
+    
+    - name: Run pytest (if available)
+      run: |
+        uv run pytest tests/ -v --tb=short
+      continue-on-error: false
