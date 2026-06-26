@@ -35,7 +35,7 @@ def test_module_all_exports():
     """Test that __all__ contains expected number of exports."""
     import ubu
     assert hasattr(ubu, '__all__')
-    assert len(ubu.__all__) == 17
+    assert len(ubu.__all__) == 19  # Updated for FileIndex and build_file_index
     print(f"✓ Module exports {len(ubu.__all__)} items")
 
 

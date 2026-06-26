@@ -42,6 +42,11 @@ from .downloader import (
     download_from_tweet,
 )
 
+from .file_index import (
+    FileIndex,
+    build_file_index,
+)
+
 from .twitter import Tweets
 
 __version__ = "0.1.0"
@@ -65,6 +70,9 @@ __all__ = [
     "full_download_run",
     "get_url_from_text",
     "download_from_tweet",
+    # File index
+    "FileIndex",
+    "build_file_index",
     # Twitter
     "Tweets",
 ]

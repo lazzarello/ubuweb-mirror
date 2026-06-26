@@ -1,44 +1,34 @@
-"""
-UbuWeb Mirror - Main entry point
+"""UbuWeb Mirror - Main entry point
 
-This script can run in two modes:
-1. Full archive download (commented out by default)
-2. Twitter monitoring mode (default)
+This script runs a full download/sync of the UbuWeb film archive.
+By default, it skips files that already exist in the download directory.
 
-To run full download, uncomment the full_download_run() call in main().
+Usage:
+    python main.py              # Skip existing files (default)
+    python main.py --no-skip    # Re-check all files
 """
 
 import ubu
-from time import sleep
-
-twitter_poll_freq = 3600  # 1 hour
+import sys
 
 
 def main():
     """
-    Main function - monitors Twitter for new UbuWeb posts and downloads them.
-    
-    To run full archive download instead, comment out the Twitter code
-    and uncomment: ubu.full_download_run()
+    Main function - runs full archive download with skip-existing enabled.
     """
-    # For full archive download, uncomment this:
-    # ubu.full_download_run()
+    # Check for --no-skip flag
+    skip_existing = True
+    if '--no-skip' in sys.argv:
+        skip_existing = False
+        print("Running with skip-existing DISABLED (will re-check all files)")
+    else:
+        print("Running with skip-existing ENABLED (will skip downloaded files)")
     
-    # Twitter monitoring mode:
-    t = ubu.Tweets()
-    last_tweet = None
-    while True:
-        current_tweet = t.get_latest_tweet().data
-        if last_tweet is None:
-            last_tweet = current_tweet
-            ubu.download_from_tweet(current_tweet)
-        elif last_tweet.id == current_tweet.id:
-            print("No new tweets")
-        else:
-            print(f"new tweet found! {current_tweet.data}")
-            ubu.download_from_tweet(current_tweet)
-            last_tweet = current_tweet
-        sleep(twitter_poll_freq)
+    print(f"Download path: {ubu.DOWNLOAD_PATH}")
+    print()
+    
+    # Run the full download
+    ubu.full_download_run(skip_existing=skip_existing)
 
 
 if __name__ == "__main__":

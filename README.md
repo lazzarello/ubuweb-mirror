@@ -66,13 +66,19 @@ ubu.download_all_works_from(artists[0])
 
 Run with uv:
 ```bash
+# Download new files, skip existing (default)
 uv run python main.py
+
+# Force re-check all files
+uv run python main.py --no-skip
 ```
 
 Or with traditional Python:
 ```bash
 python main.py
 ```
+
+**Skip-Existing Feature**: The script automatically builds an index of your existing files at startup (takes ~0.02 seconds for 3000+ files) and skips files you already have. This makes incremental updates very fast - it only downloads new content added to UbuWeb.
 
 ### Running Tests
 
@@ -89,12 +95,14 @@ python tests/run_tests.py
 
 ## Twitter
 
+Note: Twitter monitoring is in a separate script now.
+
 It's possible to enable a service to monitor @ubuweb on Twitter and extract new tweets with film contents. This requires a Twitter developer account. Put your authentication creds into the `environments.sample` file and copy it to a file named `environments` so it won't get checked into source control. Run the following
 
 ```
 cp environments.sample environments
 source environments
-python twitter.py
+uv run python twitter_monitor.py
 ```
 
 *Notes* 
