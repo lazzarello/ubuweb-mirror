@@ -30,9 +30,9 @@ jobs:
       run: |
         uv sync
     
-    - name: Run tests
+    - name: Test
       run: |
-        uv run python tests/run_tests.py
+        python tests/run_tests.py
     
     - name: Run pytest (if available)
       run: |
