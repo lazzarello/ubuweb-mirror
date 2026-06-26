@@ -107,12 +107,14 @@ def test_download_random_work_from_structure(mock_random, mock_page_class):
     mock_work = Mock()
     mock_work.url = "http://example.com/random"
     mock_work.download_url = "http://example.com/random.mp4"
+    mock_work.set_download_url = Mock()
     mock_work.download_work = Mock()
     
     mock_page.get_artist_works.return_value = [mock_work]
     
-    # Make random.choice deterministic
-    mock_random.return_value = 0
+    # Make random.choice return the first item from whatever list is passed
+    # It's called twice: once for artists, once for works
+    mock_random.side_effect = lambda x: x[0]
     
     artists = [mock_artist]
     
@@ -122,8 +124,14 @@ def test_download_random_work_from_structure(mock_random, mock_page_class):
     # Verify Page was instantiated
     mock_page_class.assert_called_once()
     
-    # Verify get_artist_works was called
-    mock_page.get_artist_works.assert_called_once()
+    # Verify get_artist_works was called with the mock artist
+    mock_page.get_artist_works.assert_called_once_with(mock_artist)
+    
+    # Verify work.set_download_url was called
+    mock_work.set_download_url.assert_called_once_with(mock_work.url)
+    
+    # Verify work.download_work was called
+    mock_work.download_work.assert_called_once()
     
     print("✓ download_random_work_from structure is correct")
 
