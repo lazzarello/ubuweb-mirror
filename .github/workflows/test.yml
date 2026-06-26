@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [ main, create-module ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
