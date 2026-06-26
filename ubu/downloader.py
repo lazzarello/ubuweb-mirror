@@ -13,7 +13,7 @@ import logging
 import re
 import requests
 
-URL_REGEX_STRING = "((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
+URL_REGEX_STRING = r"((http|https):\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
 
 # Configure logging
 logging.basicConfig(
