@@ -30,9 +30,4 @@ jobs:
     
     - name: Test
       run: |
-        python tests/run_tests.py
-    
-    - name: Run pytest (if available)
-      run: |
-        uv run pytest tests/ -v --tb=short
-      continue-on-error: false
+        pytest tests/ -v --tb=short

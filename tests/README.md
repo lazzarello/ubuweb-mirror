@@ -26,30 +26,16 @@ uv run pytest tests/test_imports.py -v
 
 # Run integration tests only
 uv run pytest tests/ -m integration -v
+
+# Run tests in parallel (if pytest-xdist installed)
+uv run pytest tests/ -n auto -v
 ```
 
-### Without pytest (Standalone)
-
-```bash
-# Run all tests with custom runner
-uv run python tests/run_tests.py
-
-# Or run individual test files
-uv run python tests/test_imports.py
-uv run python tests/test_models.py
-uv run python tests/test_downloader.py
-uv run python tests/test_integration.py
-```
-
-### Legacy Method (pip/venv)
+### Without uv (Legacy)
 
 ```bash
 # With pytest
 pytest tests/ -v
-
-# Without pytest
-python tests/run_tests.py
-python tests/test_imports.py
 ```
 
 ## Test Coverage
