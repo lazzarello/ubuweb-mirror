@@ -12,47 +12,44 @@ This directory contains comprehensive tests for the `ubu` module.
 
 ## Running Tests
 
-### Run All Tests
+### With UV (Recommended)
 
 ```bash
-# Using pytest (recommended)
-pytest tests/
+# Run all tests with pytest
+uv run pytest tests/ -v
 
-# Or with verbose output
+# Run with coverage
+uv run pytest tests/ --cov=ubu -v
+
+# Run specific test file
+uv run pytest tests/test_imports.py -v
+
+# Run integration tests only
+uv run pytest tests/ -m integration -v
+```
+
+### Without pytest (Standalone)
+
+```bash
+# Run all tests with custom runner
+uv run python tests/run_tests.py
+
+# Or run individual test files
+uv run python tests/test_imports.py
+uv run python tests/test_models.py
+uv run python tests/test_downloader.py
+uv run python tests/test_integration.py
+```
+
+### Legacy Method (pip/venv)
+
+```bash
+# With pytest
 pytest tests/ -v
 
-# Run individual test files
-.venv/bin/python tests/test_imports.py
-.venv/bin/python tests/test_models.py
-.venv/bin/python tests/test_downloader.py
-.venv/bin/python tests/test_integration.py
-```
-
-### Run Specific Test Categories
-
-```bash
-# Run only import tests
-pytest tests/test_imports.py -v
-
-# Run only model tests
-pytest tests/test_models.py -v
-
-# Run integration tests
-pytest tests/ -m integration -v
-
-# Skip slow tests
-pytest tests/ -m "not slow" -v
-```
-
-### Run Tests Without Pytest
-
-Each test file can be run directly as a Python script:
-
-```bash
-.venv/bin/python tests/test_imports.py
-.venv/bin/python tests/test_models.py
-.venv/bin/python tests/test_downloader.py
-.venv/bin/python tests/test_integration.py
+# Without pytest
+python tests/run_tests.py
+python tests/test_imports.py
 ```
 
 ## Test Coverage
@@ -98,14 +95,14 @@ The test suite covers:
 
 ## Dependencies
 
-Tests require:
-```
-pytest
-```
+Tests require pytest (automatically installed with `uv sync`):
 
-Install with:
 ```bash
-.venv/bin/python -m pip install pytest
+# With uv (recommended)
+uv sync  # Installs all dependencies including pytest
+
+# With pip (legacy)
+pip install -r requirements-dev.txt
 ```
 
 ## Notes

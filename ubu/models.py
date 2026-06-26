@@ -13,7 +13,7 @@ from tqdm import tqdm
 # file utils
 from os.path import exists
 # custom constants
-from constants import *
+from .constants import *
 # Javascript rendering
 from requests_html import HTMLSession
 import logging

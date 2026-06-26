@@ -1,7 +1,49 @@
 [project]
 name = "ubuweb-mirror"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Python module for archiving content from UbuWeb"
 readme = "README.md"
 requires-python = ">=3.10.0"
-dependencies = []
+authors = [
+    { name = "Lee Azzarello" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Archiving",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "requests",
+    "requests-html",
+    "lxml[html-clean]",
+    "beautifulsoup4",
+    "tqdm",
+    "youtube-dl",
+    "tweepy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.0.0",
+]
+
+[project.scripts]
+ubu-download = "main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ubu"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.0.0",
+]

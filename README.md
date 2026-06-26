@@ -17,10 +17,31 @@ For more context, see this interview with [Kenneth Goldsmith](https://vimeo.com/
 
 ## Installation
 
-The code is now organized as a Python module for easy importing and reuse.
+The project now uses [uv](https://github.com/astral-sh/uv) for fast, reliable dependency management.
+
+### Quick Start with uv
 
 ```bash
-python -m pip install -r requirements.txt
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and setup the project
+git clone https://github.com/lazzarello/ubuweb-mirror.git
+cd ubuweb-mirror
+
+# Install all dependencies (including dev dependencies)
+uv sync
+
+# Or install without dev dependencies
+uv sync --no-dev
+```
+
+### Legacy Installation (pip)
+
+```bash
+pip install -r requirements.txt
+# For development
+pip install -r requirements-dev.txt
 ```
 
 ## Usage
@@ -43,9 +64,27 @@ ubu.download_all_works_from(artists[0])
 
 ### As a Script
 
-To write the whole film archive to a single directory on your computer, run the program like so with an edition of Python at 3.7 or greater. The reader is expected to have previously read stories about the python computer programming language.
+Run with uv:
+```bash
+uv run python main.py
 ```
+
+Or with traditional Python:
+```bash
 python main.py
+```
+
+### Running Tests
+
+```bash
+# With uv (recommended)
+uv run pytest tests/ -v
+
+# Or run the test runner directly
+uv run python tests/run_tests.py
+
+# Legacy method
+python tests/run_tests.py
 ```
 
 ## Twitter
@@ -60,6 +99,7 @@ python twitter.py
 
 *Notes* 
 
+* The project uses `uv` for dependency management. The `uv.lock` file ensures reproducible builds.
 * The `requests-html` library will download **a headless version of the Chromium web browser** so it can render JavaScript into static HTML to be scraped. This happens once and only once upon the first `render()` call from this library.
 * A meaningful quantity of pages in the primary text are broken or destroyed. There is improvisational poetry in 
   the code to describe these scenarios, though the primary text may change at any time, creating more opportunities
