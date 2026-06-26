@@ -15,28 +15,99 @@ For more context, see this interview with [Kenneth Goldsmith](https://vimeo.com/
 
 # Instructions for The Reader
 
-## Writing
+## Installation
 
-Before we can learn to read, we must learn to write. Reading and writing can be learned concurrently but writing must always come first.
+The project now uses [uv](https://github.com/astral-sh/uv) for fast, reliable dependency management.
 
-To write the whole film archive to a single directory on your computer, run the program like so with an edition of Python at 3.7 or greater. The reader is expected to have previously read stories about the python computer programming language.
+### Quick Start with uv
+
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and setup the project
+git clone https://github.com/lazzarello/ubuweb-mirror.git
+cd ubuweb-mirror
+
+# Install all dependencies (including dev dependencies)
+uv sync
+
+# Or install without dev dependencies
+uv sync --no-dev
 ```
-python -m pip install -r requirements.txt
+
+### Legacy Installation (pip)
+
+```bash
+pip install -r requirements.txt
+# For development
+pip install -r requirements-dev.txt
+```
+
+## Usage
+
+### As a Module
+
+You can now import and use ubu in your own scripts:
+
+```python
+import ubu
+
+# Download all works from all artists
+ubu.full_download_run()
+
+# Or work with individual components
+page = ubu.Page()
+artists = page.get_artists(ubu.FILM_URL)
+ubu.download_all_works_from(artists[0])
+```
+
+### As a Script
+
+Run with uv:
+```bash
+# Download new files, skip existing (default)
+uv run python main.py
+
+# Force re-check all files
+uv run python main.py --no-skip
+```
+
+Or with traditional Python:
+```bash
 python main.py
 ```
 
+**Skip-Existing Feature**: The script automatically builds an index of your existing files at startup (takes ~0.02 seconds for 3000+ files) and skips files you already have. This makes incremental updates very fast - it only downloads new content added to UbuWeb.
+
+### Running Tests
+
+```bash
+# With uv (recommended)
+uv run pytest tests/ -v
+
+# Or run the test runner directly
+uv run python tests/run_tests.py
+
+# Legacy method
+python tests/run_tests.py
+```
+
 ## Twitter
+
+Note: Twitter monitoring is in a separate script now.
 
 It's possible to enable a service to monitor @ubuweb on Twitter and extract new tweets with film contents. This requires a Twitter developer account. Put your authentication creds into the `environments.sample` file and copy it to a file named `environments` so it won't get checked into source control. Run the following
 
 ```
 cp environments.sample environments
 source environments
-python twitter.py
+uv run python twitter_monitor.py
 ```
 
 *Notes* 
 
+* The project uses `uv` for dependency management. The `uv.lock` file ensures reproducible builds.
 * The `requests-html` library will download **a headless version of the Chromium web browser** so it can render JavaScript into static HTML to be scraped. This happens once and only once upon the first `render()` call from this library.
 * A meaningful quantity of pages in the primary text are broken or destroyed. There is improvisational poetry in 
   the code to describe these scenarios, though the primary text may change at any time, creating more opportunities

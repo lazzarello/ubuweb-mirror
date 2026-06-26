@@ -1,6 +1,11 @@
 requests
 requests-html
+lxml[html-clean]
 beautifulsoup4
 tqdm
 youtube-dl
 tweepy
+
+# Development dependencies (optional)
+# Install with: pip install -r requirements-dev.txt
+# pytest

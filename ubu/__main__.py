@@ -1,16 +1,17 @@
 """UbuWeb Mirror - Main entry point
 
-This script runs a full download/sync of the UbuWeb film archive.
+This module runs a full download/sync of the UbuWeb film archive.
 By default, it skips files that already exist in the download directory.
 
 Usage:
-    python main.py              # Skip existing files (default)
-    python main.py --no-skip    # Re-check all files
-    python main.py --help       # Show help
+    python -m ubu              # Skip existing files (default)
+    python -m ubu --no-skip    # Re-check all files
+    ubu-download               # Console script (after pip install)
 """
 
+import sys
 import argparse
-import ubu
+from . import full_download_run, DOWNLOAD_PATH
 
 
 def main():
@@ -22,8 +23,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python main.py               Download new files, skip existing (default)
-  python main.py --no-skip     Force re-check all files
+  ubu-download                 Download new files, skip existing (default)
+  ubu-download --no-skip       Force re-check all files
+  python -m ubu                Same as ubu-download
 
 The script builds an index of existing files and only downloads new content.
         """
@@ -38,7 +40,7 @@ The script builds an index of existing files and only downloads new content.
     parser.add_argument(
         '--version',
         action='version',
-        version=f'%(prog)s {ubu.__version__}'
+        version='%(prog)s 0.1.0'
     )
     
     args = parser.parse_args()
@@ -50,11 +52,11 @@ The script builds an index of existing files and only downloads new content.
     else:
         print("Running with skip-existing DISABLED (will re-check all files)")
     
-    print(f"Download path: {ubu.DOWNLOAD_PATH}")
+    print(f"Download path: {DOWNLOAD_PATH}")
     print()
     
     # Run the full download
-    ubu.full_download_run(skip_existing=skip_existing)
+    full_download_run(skip_existing=skip_existing)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,39 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+    
+    - name: Check uv.lock is up to date
+      run: |
+        uv lock --locked
+    
+    - name: Install dependencies
+      run: |
+        uv sync
+    
+    - name: Check imports work
+      run: |
+        uv run python -c "import ubu; print(f'ubu v{ubu.__version__} imported successfully')"
+    
+    - name: Verify file index with empty directory
+      run: |
+        mkdir -p /tmp/test-ubu
+        uv run python -c "import ubu; idx = ubu.build_file_index('/tmp/test-ubu'); print(f'Created index with {len(idx)} files')"
