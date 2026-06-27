@@ -142,19 +142,24 @@ class Page:
         return description
 
     def get_links(self, url):
+        page = None
         try:
             page = requests.get(url)
             tables = self.get_tables(page)
             # Stupid error handling for DMCA takedown pages
             # links = tables[1].find_all("a", string=lambda text: "Marian Goodman" not in text or text is not None)
             # TODO remove magic string and just write the bad data like previously, logging failure
+            if len(tables) < 2:
+                logging.error(f"Page {url} does not have enough tables (found {len(tables)}, need at least 2)")
+                return []
             links = tables[1].find_all("a")
             return links
         except Exception as e:
-            if page.url == ERROR_URL:
-                logging.error(f"Page {page.url} is not found on server", exc_info=True)
+            if page and page.url == ERROR_URL:
+                logging.error(f"Page {url} is not found on server", exc_info=True)
             else:
-                logging.error(f"Page {page.url} has invalid artist or works", exc_info=True)
+                logging.error(f"Page {url} has invalid artist or works", exc_info=True)
+            return []  # Return empty list instead of None
 
     def get_artists(self, url):
         # refactor to only do one request, not two
@@ -183,7 +188,8 @@ class Page:
             w.artist = artist
             works.append(w)
         # this convention removes the left nav bar links.
-        for _ in range(2):
+        # Only pop if there are enough items
+        for _ in range(min(2, len(works))):
             works.pop(0)
         if len(works) == 0:
             logging.info(f"Artist {artist.name} has no works on {artist.url}")
