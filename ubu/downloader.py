@@ -43,7 +43,7 @@ def download_random_work_from(artists):
         logging.warning(f"No works found for artist: {artist.name}")
         return
     work = random.choice(artist_works)
-    work.set_download_url(work.url)
+    work.download_url = work.url
     work.download_work()
 
 
@@ -57,7 +57,7 @@ def download_all_works_from(artist):
     page = Page()
     artist_works = page.get_artist_works(artist)
     for work in artist_works:
-        work.set_download_url(work.url)
+        work.download_url = work.url
         if work.download_url:
             work.download_work()
 
@@ -99,7 +99,7 @@ def full_download_run(skip_existing=True):
             stats["works_found"] += len(artist_works)
 
             for work in artist_works:
-                work.set_download_url(work.url)
+                work.download_url = work.url
                 if work.download_url:
                     # Check if file exists in index
                     if file_index:

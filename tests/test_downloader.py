@@ -64,12 +64,11 @@ def test_download_all_works_from_structure(mock_page_class):
     
     mock_work1 = Mock()
     mock_work1.url = "http://example.com/work1"
-    mock_work1.download_url = "http://example.com/work1.mp4"
     mock_work1.download_work = Mock()
     
     mock_work2 = Mock()
-    mock_work2.url = "http://example.com/work2"
-    mock_work2.download_url = None  # This one has no download URL
+    mock_work2.url = None  # This one has no URL, so download_url will be None
+    mock_work2.download_work = Mock()
     
     mock_page.get_artist_works.return_value = [mock_work1, mock_work2]
     
@@ -82,10 +81,14 @@ def test_download_all_works_from_structure(mock_page_class):
     # Verify it tried to get artist works
     mock_page.get_artist_works.assert_called_once_with(mock_artist)
     
-    # Verify it tried to download the work with a download_url
+    # Verify download_url was set to work.url for both works
+    assert mock_work1.download_url == mock_work1.url
+    assert mock_work2.download_url == mock_work2.url  # Will be None
+    
+    # Verify it tried to download work1 (has a URL)
     mock_work1.download_work.assert_called_once()
     
-    # Work2 should not have download_work called (no download_url)
+    # Work2 should not have download_work called (no URL, so download_url is None)
     mock_work2.download_work.assert_not_called()
     
     print("✓ download_all_works_from structure is correct")
@@ -106,8 +109,6 @@ def test_download_random_work_from_structure(mock_random, mock_page_class):
     
     mock_work = Mock()
     mock_work.url = "http://example.com/random"
-    mock_work.download_url = "http://example.com/random.mp4"
-    mock_work.set_download_url = Mock()
     mock_work.download_work = Mock()
     
     mock_page.get_artist_works.return_value = [mock_work]
@@ -127,8 +128,10 @@ def test_download_random_work_from_structure(mock_random, mock_page_class):
     # Verify get_artist_works was called with the mock artist
     mock_page.get_artist_works.assert_called_once_with(mock_artist)
     
-    # Verify work.set_download_url was called
-    mock_work.set_download_url.assert_called_once_with(mock_work.url)
+    # Verify work.download_url was set directly (no set_download_url method)
+    # The Work class used to have a set_download_url() method but it was removed
+    # 4 years ago in commit 497006a. Now download_url is set directly.
+    assert mock_work.download_url == mock_work.url
     
     # Verify work.download_work was called
     mock_work.download_work.assert_called_once()
