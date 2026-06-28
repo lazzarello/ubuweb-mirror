@@ -1,22 +1,35 @@
 # for download_alternate_work function
 from __future__ import unicode_literals
 import youtube_dl
+
 # https://realpython.com/beautiful-soup-web-scraper-python/
 # data object stuff
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 # URL and scraping stuff
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+
 # Progress bar
 from tqdm import tqdm
+
 # file utils
 from os.path import exists
+import os
+
 # custom constants
-from .constants import *
+from .constants import (
+    BASE_FILM_URL,
+    DOWNLOAD_PATH,
+    HTML_PATH,
+    ERROR_URL,
+)
+
 # Javascript rendering
 from requests_html import HTMLSession
 import logging
+
 
 @dataclass
 class Artist:
@@ -28,6 +41,7 @@ class Artist:
     broken: bool = False
     dmca: bool = False
 
+
 @dataclass
 class Work:
     name: str = ""
@@ -38,48 +52,51 @@ class Work:
     artist = None
 
     def download_alternate_work(self):
-        page = requests.get(self.url)
+        page = requests.get(self.url, timeout=30)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         iframe = video.find("iframe")
         if iframe is None:
-            logging.info("iframe for alternate work is absent. Try dynamic scraper to render javascript")
+            logging.info(
+                "iframe for alternate work is absent. Try dynamic scraper to render javascript"
+            )
             session = HTMLSession()
-            response = session.get(self.url)
+            response = session.get(self.url, timeout=30)
             response.html.render()
-            elem = response.html.find("iframe") 
+            elem = response.html.find("iframe")
             iframe = elem[0].attrs
         output_template = DOWNLOAD_PATH + "%(title)s.%(ext)s"
-        ydl_opts = {"outtmpl" : output_template}
+        ydl_opts = {"outtmpl": output_template}
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([iframe["src"]])
 
     def download_work(self):
         if self.download_url is not None:
-            response = requests.get(self.download_url, stream=True)
+            response = requests.get(self.download_url, stream=True, timeout=30)
         else:
-            logging.info("whoopsy daisy, can't find a download_url, try alternate download function")
+            logging.info(
+                "whoopsy daisy, can't find a download_url, try alternate download function"
+            )
             self.download_alternate_work()
             return None
         if response.url != ERROR_URL:
             url_parts = urlparse(self.download_url)
             path = url_parts.path.split("/")
             filename_base = path[-1]
-            
+
             # Determine download path based on file extension
-            if filename_base.lower().endswith(('.html', '.htm')):
+            if filename_base.lower().endswith((".html", ".htm")):
                 download_path = HTML_PATH
             else:
                 download_path = DOWNLOAD_PATH
-            
-            import os
+
             filename = os.path.join(download_path, filename_base)
             logging.debug(filename)
             print(filename)
             # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
-            size_in_bytes = int(response.headers.get('content-length', 0))
+            size_in_bytes = int(response.headers.get("content-length", 0))
             block_size = 1024
-            progress_bar = tqdm(total=size_in_bytes, unit='iB', unit_scale=True)
+            progress_bar = tqdm(total=size_in_bytes, unit="iB", unit_scale=True)
             if exists(filename) is False:
                 with open(filename, "wb") as file:
                     for data in response.iter_content(block_size):
@@ -87,39 +104,47 @@ class Work:
                         file.write(data)
                 progress_bar.close()
             else:
-                logging.debug('file exists, TODO: write a function to check for partial downloads')
+                logging.debug(
+                    "file exists, TODO: write a function to check for partial downloads"
+                )
         else:
-            logging.info("whoopsy daisy, no local download, need alternate download function")
+            logging.info(
+                "whoopsy daisy, no local download, need alternate download function"
+            )
             self.download_alternate_work()
+
 
 @dataclass
 class FilmWork(Work):
     def get_media_url(self, url):
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         if video is not None:
-            moviename = video.find("a", id="moviename") 
+            moviename = video.find("a", id="moviename")
             if moviename is not None:
                 self.download_url = BASE_FILM_URL + moviename["href"]
             else:
-                logging.info("Reload URL and run with a dynamic scraper. Link might be javascript")
+                logging.info(
+                    "Reload URL and run with a dynamic scraper. Link might be javascript"
+                )
                 session = HTMLSession()
-                response = session.get(url)
+                response = session.get(url, timeout=30)
                 response.html.render()
-                moviename = response.html.find("#moviename") 
+                moviename = response.html.find("#moviename")
                 if len(moviename) == 0:
                     self.download_url = None
                 else:
                     self.download_url = BASE_FILM_URL + moviename[0].attrs["href"]
         return self.download_url
 
+
 @dataclass
 class SoundWork(Work):
     # This is just a preview, the real links are in a less well tagged ol element, but that ight be the only one so yuea!
     def get_media_url(self, url):
         session = HTMLSession()
-        response = session.get(url)
+        response = session.get(url, timeout=30)
         response.html.render()
         player = response.html.find(".audiojs")
         audio = player[0].find("audio")
@@ -128,6 +153,7 @@ class SoundWork(Work):
     def download_work(self, url):
         self.download_url = self.get_media_url(url)
         return self.download_url
+
 
 # TODO: refactor this class to have a Page base class and subclasses for different types of page
 # Page only takes a url object, never an artist object
@@ -140,11 +166,11 @@ class Page:
 
     def get_content_div(self, page):
         soup = BeautifulSoup(page.content, "html.parser")
-        divs = soup.find("div", class_="ububody")
-        
+        _divs = soup.find("div", class_="ububody")
+
     # refactor this and get_links to reuse the response for many functions
     def get_artist_description(self, url):
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         tables = self.get_tables(page)
         storycontent = tables[1].find("div", class_="storycontent")
         description = storycontent.find_all("p")
@@ -153,14 +179,16 @@ class Page:
     def get_links(self, url):
         page = None
         try:
-            page = requests.get(url)
+            page = requests.get(url, timeout=30)
             tables = self.get_tables(page)
             if len(tables) < 2:
-                logging.error(f"Page {url} does not have enough tables (found {len(tables)}, need at least 2)")
+                logging.error(
+                    f"Page {url} does not have enough tables (found {len(tables)}, need at least 2)"
+                )
                 return []
             links = tables[1].find_all("a")
             return links
-        except Exception as e:
+        except Exception:
             if page and page.url == ERROR_URL:
                 logging.error(f"Page {url} is not found on server", exc_info=True)
             else:
@@ -174,7 +202,7 @@ class Page:
         artists = []
         for artist in artists_links:
             a = Artist()
-            a.name = artist.text.strip() 
+            a.name = artist.text.strip()
             a.url = BASE_FILM_URL + artist["href"]
             # a.description = description
             artists.append(a)
