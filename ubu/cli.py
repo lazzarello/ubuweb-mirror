@@ -296,10 +296,10 @@ def _generate_json_report(artists, page, output):
 
     data["total_works"] = total_works
 
-    json_output = json.dumps(data, indent=2)
+    json_output = json.dumps(data, indent=2, ensure_ascii=False)
 
     if output:
-        with open(output, "w") as f:
+        with open(output, "w", encoding="utf-8") as f:
             f.write(json_output)
     else:
         click.echo(json_output)
