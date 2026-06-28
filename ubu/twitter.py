@@ -17,24 +17,31 @@ warnings.warn(
     "Twitter API integration is deprecated. Twitter/X has shut down free API access. "
     "Use periodic full downloads with skip-existing instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
+
+# URL regex pattern for extracting URLs from tweet text
+URL_REGEX_STRING = r"https?://[^\s]+"
 
 
 class Tweets:
     def __init__(self):
-        self.consumer_key = environ['CONSUMER_KEY']
-        self.consumer_key_secret = environ['CONSUMER_KEY_SECRET']
-        self.access_token = environ['ACCESS_TOKEN']
-        self.access_token_secret = environ['ACCESS_TOKEN_SECRET']
-        self.bearer_token = environ['BEARER_TOKEN']
+        self.consumer_key = environ["CONSUMER_KEY"]
+        self.consumer_key_secret = environ["CONSUMER_KEY_SECRET"]
+        self.access_token = environ["ACCESS_TOKEN"]
+        self.access_token_secret = environ["ACCESS_TOKEN_SECRET"]
+        self.bearer_token = environ["BEARER_TOKEN"]
         self.client = tweepy.Client(self.bearer_token)
         self.ubuweb_user = self.client.get_user(username="ubuweb")
         self.last_tweets = [0]
 
     def get_timeline(self, max_results=5):
-        timeline = self.client.get_users_tweets(self.ubuweb_user.data.id, exclude=["retweets", "replies"],
-                                           max_results=max_results, tweet_fields="id,text,created_at,attachments")
+        timeline = self.client.get_users_tweets(
+            self.ubuweb_user.data.id,
+            exclude=["retweets", "replies"],
+            max_results=max_results,
+            tweet_fields="id,text,created_at,attachments",
+        )
         return timeline
 
     def get_current_url(self):
@@ -59,7 +66,7 @@ class Tweets:
         return urls
 
     def get_latest_tweet(self):
-        timeline = self.get_timeline() 
+        timeline = self.get_timeline()
         tweets = timeline.data
         tweet_ids = []
         for tweet in tweets:

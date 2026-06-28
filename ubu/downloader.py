@@ -7,7 +7,7 @@ including random downloads, full archive runs, and tweet-based downloads.
 
 from .models import Page, Work
 from .constants import FILM_URL, DOWNLOAD_PATH, HTML_PATH
-from .file_index import build_file_index, FileIndex
+from .file_index import build_file_index
 from urllib.parse import urlparse
 import random
 import logging
@@ -76,7 +76,7 @@ def full_download_run(skip_existing=True, download_path=None):
     # Use provided paths or defaults
     av_path = download_path or DOWNLOAD_PATH
     html_path_to_use = HTML_PATH  # HTML path not overridable for now
-    
+
     # Build indices of existing files if skip_existing is enabled
     av_file_index = None
     html_file_index = None
@@ -85,7 +85,9 @@ def full_download_run(skip_existing=True, download_path=None):
         av_file_index = build_file_index(av_path)
         html_file_index = build_file_index(html_path_to_use)
         total_files = len(av_file_index) + len(html_file_index)
-        logging.info(f"Found {len(av_file_index)} A/V files and {len(html_file_index)} HTML files (total: {total_files})")
+        logging.info(
+            f"Found {len(av_file_index)} A/V files and {len(html_file_index)} HTML files (total: {total_files})"
+        )
 
     page = Page()
     artists_page = page.get_artists(FILM_URL)
@@ -115,7 +117,7 @@ def full_download_run(skip_existing=True, download_path=None):
                         filename = url_parts.path.split("/")[-1]
 
                         # Check if it's an HTML file
-                        is_html = filename.lower().endswith(('.html', '.htm'))
+                        is_html = filename.lower().endswith((".html", ".htm"))
                         file_index = html_file_index if is_html else av_file_index
 
                         if file_index and file_index.has_file(filename):
@@ -127,11 +129,11 @@ def full_download_run(skip_existing=True, download_path=None):
                     try:
                         work.download_work()
                         stats["files_downloaded"] += 1
-                    except Exception as e:
+                    except Exception:
                         logging.error(f"Failed to download {work.name}", exc_info=True)
                         stats["errors"] += 1
 
-        except Exception as e:
+        except Exception:
             logging.error(
                 f"Failed to process artist {artist.name if artist else 'unknown'}",
                 exc_info=True,
@@ -150,7 +152,7 @@ def full_download_run(skip_existing=True, download_path=None):
     print("=" * 60)
 
     logging.info(f"Download complete: {stats}")
-    
+
     # Note: The download_path parameter affects skip_existing index building,
     # but Work.download_work() still uses constants from models.py.
     # Full support for custom download paths would require refactoring Work class.

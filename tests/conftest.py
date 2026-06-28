@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     import pytest
-    
+
     def pytest_configure(config):
         """Configure pytest with custom markers."""
         config.addinivalue_line(
@@ -29,30 +29,33 @@ try:
     def mock_artist():
         """Fixture providing a mock Artist object."""
         import ubu
+
         return ubu.Artist(
             name="Test Artist",
             url="https://www.ubu.com/film/test.html",
             id=1,
-            description="A test artist"
+            description="A test artist",
         )
 
     @pytest.fixture
     def mock_work():
         """Fixture providing a mock Work object."""
         import ubu
+
         return ubu.Work(
             name="Test Work",
             url="https://www.ubu.com/film/test_work.html",
             daterange="2020",
-            description="A test work"
+            description="A test work",
         )
 
     @pytest.fixture
     def mock_page():
         """Fixture providing a Page instance."""
         import ubu
+
         return ubu.Page()
-        
+
 except ImportError:
     # pytest not available
     pass
