@@ -46,6 +46,15 @@ pip install -r requirements-dev.txt
 
 ## Usage
 
+### File Organization
+
+The script now separates HTML files from audio/video content:
+
+- **A/V Content**: Saved to `~/jellyfin/ubuweb/` (configurable via `DOWNLOAD_PATH` in `ubu/constants.py`)
+- **HTML Files**: Saved to `~/tmp/ubuweb/` (configurable via `HTML_PATH` in `ubu/constants.py`)
+
+This separation ensures that your media server directory (like Jellyfin) only contains playable A/V content, while HTML files (which are typically non-functional fragments or redirects) are stored separately for future reference.
+
 ### As a Module
 
 You can now import and use ubu in your own scripts:

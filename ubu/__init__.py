@@ -22,6 +22,7 @@ from .constants import (
     FILM_URL,
     BASE_FILM_URL,
     DOWNLOAD_PATH,
+    HTML_PATH,
     ERROR_URL,
     BROKEN_PAGES,
 )
@@ -56,6 +57,7 @@ __all__ = [
     "FILM_URL",
     "BASE_FILM_URL",
     "DOWNLOAD_PATH",
+    "HTML_PATH",
     "ERROR_URL",
     "BROKEN_PAGES",
     # Models
