@@ -64,15 +64,16 @@ class Work:
         if response.url != ERROR_URL:
             url_parts = urlparse(self.download_url)
             path = url_parts.path.split("/")
-            filename_base = path[-1:][0]
+            filename_base = path[-1]
             
             # Determine download path based on file extension
-            if filename_base.lower().endswith('.html') or filename_base.lower().endswith('.htm'):
+            if filename_base.lower().endswith(('.html', '.htm')):
                 download_path = HTML_PATH
             else:
                 download_path = DOWNLOAD_PATH
             
-            filename = download_path + filename_base
+            import os
+            filename = os.path.join(download_path, filename_base)
             logging.debug(filename)
             print(filename)
             # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
