@@ -7,6 +7,7 @@ Usage:
     python -m ubu download     # Download archive
     python -m ubu analyze      # Analyze downloaded content
     python -m ubu report       # Generate report
+    python -m ubu random       # Download random work
     ubu                        # Console script (after pip install)
 """
 

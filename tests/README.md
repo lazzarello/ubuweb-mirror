@@ -7,7 +7,10 @@ This directory contains comprehensive tests for the `ubu` module.
 - **test_imports.py** - Tests module imports, exports, and basic structure
 - **test_models.py** - Tests model classes (Artist, Work, FilmWork, SoundWork, Page)
 - **test_downloader.py** - Tests download functions with mocking
+- **test_cli.py** - Tests Click-based CLI commands and options
 - **test_integration.py** - Integration tests verifying components work together
+- **test_file_index.py** - Tests file indexing and skip-existing functionality
+- **test_validation.py** - Tests validation and error handling
 - **conftest.py** - Pytest configuration and fixtures
 
 ## Running Tests
@@ -59,6 +62,16 @@ The test suite covers:
 - ✓ Page instantiation and methods
 - ✓ Models are dataclasses
 - ✓ Download methods exist
+
+### CLI Commands (test_cli.py)
+- ✓ CLI help text and command listing
+- ✓ Version display
+- ✓ Download command with --no-skip and --download-path
+- ✓ Analyze command with custom paths
+- ✓ Report command with text/json/csv formats
+- ✓ Random command with and without artist name
+- ✓ Verbosity levels (-v, -vv, -vvv)
+- ✓ Output file handling
 
 ### Downloader Functions (test_downloader.py)
 - ✓ All download functions exist

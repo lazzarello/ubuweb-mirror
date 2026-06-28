@@ -48,25 +48,45 @@ pip install -r requirements-dev.txt
 
 ### Command Line Interface
 
-The project now includes a comprehensive CLI built with Click, providing commands for downloading, analyzing, and reporting on the archive.
+The project includes a comprehensive CLI built with Click, providing commands for downloading, analyzing, and reporting on the archive.
+
+#### Installation Methods
+
+After installation, you can run the CLI in several ways:
+
+```bash
+# Using the console script (after pip/uv install)
+ubu --help
+ubu-download --help  # Alternative entry point
+
+# Using the module directly
+uv run python -m ubu --help
+python -m ubu --help
+
+# Using the main.py entry point
+uv run python main.py --help
+python main.py --help
+```
+
+All methods provide the same Click-based interface with the same commands and options.
 
 #### Available Commands
 
 ```bash
 # Show help and available commands
-uv run python main.py --help
+ubu --help
 
 # Download content from UbuWeb
-uv run python main.py download
+ubu download
 
 # Analyze your local archive
-uv run python main.py analyze
+ubu analyze
 
 # Generate reports in various formats
-uv run python main.py report
+ubu report
 
 # Download a random work
-uv run python main.py random
+ubu random
 ```
 
 #### Download Command
@@ -75,16 +95,18 @@ Download content from the UbuWeb archive:
 
 ```bash
 # Download new files only (default behavior)
-uv run python main.py download
+ubu download
 
 # Force re-check all files
-uv run python main.py download --no-skip
+ubu download --no-skip
 
 # Use custom download path
-uv run python main.py download --download-path ~/custom/path
+ubu download --download-path ~/custom/path
 
 # Increase verbosity
-uv run python main.py -v download
+ubu -v download
+ubu -vv download  # More verbose
+ubu -vvv download # Maximum verbosity
 ```
 
 **Skip-Existing Feature**: The script automatically builds an index of your existing files at startup (takes ~0.02 seconds for 3000+ files) and skips files you already have. This makes incremental updates very fast - it only downloads new content added to UbuWeb.
@@ -95,10 +117,10 @@ Analyze your downloaded archive to see statistics:
 
 ```bash
 # Analyze default paths
-uv run python main.py analyze
+ubu analyze
 
 # Analyze custom paths
-uv run python main.py analyze --download-path ~/custom/av --html-path ~/custom/html
+ubu analyze --download-path ~/custom/av --html-path ~/custom/html
 ```
 
 Example output:
@@ -122,13 +144,13 @@ Generate detailed reports of the archive contents:
 
 ```bash
 # Generate text report to stdout
-uv run python main.py report
+ubu report
 
 # Generate JSON report
-uv run python main.py report --format json --output archive-report.json
+ubu report --format json --output archive-report.json
 
 # Generate CSV report
-uv run python main.py report --format csv --output archive.csv
+ubu report --format csv --output archive.csv
 ```
 
 Supported formats:
@@ -142,10 +164,10 @@ Download a random work from the archive:
 
 ```bash
 # Download from random artist
-uv run python main.py random
+ubu random
 
 # Download random work from specific artist
-uv run python main.py random "Chantal Akerman"
+ubu random "Chantal Akerman"
 ```
 
 ### File Organization

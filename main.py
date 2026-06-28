@@ -7,6 +7,7 @@ Usage:
     python main.py download     # Download archive
     python main.py analyze      # Analyze downloaded content
     python main.py report       # Generate report
+    python main.py random       # Download random work
 """
 
 from ubu.cli import main
