@@ -37,7 +37,6 @@ dev = [
 
 [project.scripts]
 ubu = "ubu.cli:main"
-ubu-download = "ubu.cli:main"
 
 [build-system]
 requires = ["hatchling"]

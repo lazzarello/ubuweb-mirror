@@ -52,7 +52,7 @@ class Work:
     artist = None
 
     def download_alternate_work(self):
-        page = requests.get(self.url)
+        page = requests.get(self.url, timeout=30)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         iframe = video.find("iframe")
@@ -61,7 +61,7 @@ class Work:
                 "iframe for alternate work is absent. Try dynamic scraper to render javascript"
             )
             session = HTMLSession()
-            response = session.get(self.url)
+            response = session.get(self.url, timeout=30)
             response.html.render()
             elem = response.html.find("iframe")
             iframe = elem[0].attrs
@@ -72,7 +72,7 @@ class Work:
 
     def download_work(self):
         if self.download_url is not None:
-            response = requests.get(self.download_url, stream=True)
+            response = requests.get(self.download_url, stream=True, timeout=30)
         else:
             logging.info(
                 "whoopsy daisy, can't find a download_url, try alternate download function"
@@ -117,7 +117,7 @@ class Work:
 @dataclass
 class FilmWork(Work):
     def get_media_url(self, url):
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         soup = BeautifulSoup(page.content, "html.parser")
         video = soup.find("div", class_="ubucontainer")
         if video is not None:
@@ -129,7 +129,7 @@ class FilmWork(Work):
                     "Reload URL and run with a dynamic scraper. Link might be javascript"
                 )
                 session = HTMLSession()
-                response = session.get(url)
+                response = session.get(url, timeout=30)
                 response.html.render()
                 moviename = response.html.find("#moviename")
                 if len(moviename) == 0:
@@ -144,7 +144,7 @@ class SoundWork(Work):
     # This is just a preview, the real links are in a less well tagged ol element, but that ight be the only one so yuea!
     def get_media_url(self, url):
         session = HTMLSession()
-        response = session.get(url)
+        response = session.get(url, timeout=30)
         response.html.render()
         player = response.html.find(".audiojs")
         audio = player[0].find("audio")
@@ -170,7 +170,7 @@ class Page:
 
     # refactor this and get_links to reuse the response for many functions
     def get_artist_description(self, url):
-        page = requests.get(url)
+        page = requests.get(url, timeout=30)
         tables = self.get_tables(page)
         storycontent = tables[1].find("div", class_="storycontent")
         description = storycontent.find_all("p")
@@ -179,7 +179,7 @@ class Page:
     def get_links(self, url):
         page = None
         try:
-            page = requests.get(url)
+            page = requests.get(url, timeout=30)
             tables = self.get_tables(page)
             if len(tables) < 2:
                 logging.error(

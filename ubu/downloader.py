@@ -16,14 +16,6 @@ import requests
 
 URL_REGEX_STRING = r"((http|https):\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*"
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(message)s",
-    filename="transfers.log",
-    filemode="a",
-)
-
 
 def download_random_work_from(artists):
     """
@@ -152,10 +144,6 @@ def full_download_run(skip_existing=True, download_path=None):
     print("=" * 60)
 
     logging.info(f"Download complete: {stats}")
-
-    # Note: The download_path parameter affects skip_existing index building,
-    # but Work.download_work() still uses constants from models.py.
-    # Full support for custom download paths would require refactoring Work class.
 
 
 def get_url_from_text(text):

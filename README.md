@@ -57,7 +57,6 @@ After installation, you can run the CLI in several ways:
 ```bash
 # Using the console script (after pip/uv install)
 ubu --help
-ubu-download --help  # Alternative entry point
 
 # Using the module directly
 uv run python -m ubu --help

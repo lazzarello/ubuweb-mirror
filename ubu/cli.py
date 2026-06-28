@@ -41,15 +41,15 @@ def cli(ctx, verbose):
     else:  # verbose >= 2
         level = logging.DEBUG
 
-    # Configure root logger (suppress downloader.py's conflicting config)
-    root_logger = logging.getLogger()
-    if not root_logger.handlers:
-        handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        )
-        root_logger.addHandler(handler)
-    root_logger.setLevel(level)
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler("transfers.log", mode="a"),
+        ],
+        force=True,
+    )
 
     ctx.obj["verbose"] = verbose
 
@@ -98,7 +98,9 @@ def download(ctx, no_skip, download_path):
         click.secho("✓ Download complete!", fg="green")
     except Exception as e:
         click.secho(f"✗ Error during download: {e}", fg="red", err=True)
-        raise click.Abort()
+        if ctx.obj.get("verbose", 0) > 0:
+            logging.exception("Full traceback:")
+        raise
 
 
 @cli.command()
@@ -159,7 +161,9 @@ def analyze(ctx, download_path, html_path):
 
     except Exception as e:
         click.secho(f"✗ Error during analysis: {e}", fg="red", err=True)
-        raise click.Abort()
+        if ctx.obj.get("verbose", 0) > 0:
+            logging.exception("Full traceback:")
+        raise
 
 
 @cli.command()
@@ -209,7 +213,9 @@ def report(ctx, format, output):
 
     except Exception as e:
         click.secho(f"✗ Error generating report: {e}", fg="red", err=True)
-        raise click.Abort()
+        if ctx.obj.get("verbose", 0) > 0:
+            logging.exception("Full traceback:")
+        raise
 
 
 def _generate_text_report(artists, page, output):
@@ -222,16 +228,27 @@ def _generate_text_report(artists, page, output):
     lines.append("")
 
     total_works = 0
+    errors = 0
     for artist in artists:
-        works = page.get_artist_works(artist)
-        total_works += len(works)
-        lines.append(f"{artist.name}")
-        lines.append(f"  URL: {artist.url}")
-        lines.append(f"  Works: {len(works)}")
-        lines.append("")
+        try:
+            works = page.get_artist_works(artist)
+            total_works += len(works)
+            lines.append(f"{artist.name}")
+            lines.append(f"  URL: {artist.url}")
+            lines.append(f"  Works: {len(works)}")
+            lines.append("")
+        except Exception:
+            logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+            errors += 1
+            lines.append(f"{artist.name} [ERROR]")
+            lines.append(f"  URL: {artist.url}")
+            lines.append(f"  Works: Unable to retrieve")
+            lines.append("")
 
     lines.append("=" * 60)
     lines.append(f"Total Works: {total_works}")
+    if errors > 0:
+        lines.append(f"Errors: {errors} artist(s) failed")
     lines.append("=" * 60)
 
     report_text = "\n".join(lines)
@@ -247,20 +264,31 @@ def _generate_json_report(artists, page, output):
     """Generate a JSON format report."""
     import json
 
-    data = {"total_artists": len(artists), "artists": []}
+    data = {"total_artists": len(artists), "artists": [], "errors": 0}
 
     total_works = 0
     for artist in artists:
-        works = page.get_artist_works(artist)
-        total_works += len(works)
+        try:
+            works = page.get_artist_works(artist)
+            total_works += len(works)
 
-        artist_data = {
-            "name": artist.name,
-            "url": artist.url,
-            "work_count": len(works),
-            "works": [{"name": work.name, "url": work.url} for work in works],
-        }
-        data["artists"].append(artist_data)
+            artist_data = {
+                "name": artist.name,
+                "url": artist.url,
+                "work_count": len(works),
+                "works": [{"name": work.name, "url": work.url} for work in works],
+            }
+            data["artists"].append(artist_data)
+        except Exception:
+            logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+            data["errors"] += 1
+            artist_data = {
+                "name": artist.name,
+                "url": artist.url,
+                "work_count": None,
+                "error": "Failed to retrieve works",
+            }
+            data["artists"].append(artist_data)
 
     data["total_works"] = total_works
 
@@ -283,17 +311,25 @@ def _generate_csv_report(artists, page, output):
             writer = csv.writer(f)
             writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
             for artist in artists:
-                works = page.get_artist_works(artist)
-                for work in works:
-                    writer.writerow([artist.name, artist.url, work.name, work.url])
+                try:
+                    works = page.get_artist_works(artist)
+                    for work in works:
+                        writer.writerow([artist.name, artist.url, work.name, work.url])
+                except Exception:
+                    logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+                    writer.writerow([artist.name, artist.url, "ERROR", "Failed to retrieve works"])
     else:
         output_buffer = io.StringIO()
         writer = csv.writer(output_buffer)
         writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
         for artist in artists:
-            works = page.get_artist_works(artist)
-            for work in works:
-                writer.writerow([artist.name, artist.url, work.name, work.url])
+            try:
+                works = page.get_artist_works(artist)
+                for work in works:
+                    writer.writerow([artist.name, artist.url, work.name, work.url])
+            except Exception:
+                logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+                writer.writerow([artist.name, artist.url, "ERROR", "Failed to retrieve works"])
         click.echo(output_buffer.getvalue())
 
 
@@ -334,11 +370,13 @@ def random(ctx, artist_name):
             try:
                 choice = click.prompt("Select artist number", type=int)
                 if choice < 1 or choice > len(matching_artists):
-                    click.secho("✗ Invalid selection", fg="red", err=True)
+                    click.secho("✗ Selection out of range", fg="red", err=True)
                     raise click.Abort()
                 selected_artist = matching_artists[choice - 1]
-            except (ValueError, KeyboardInterrupt):
-                click.secho("\n✗ Invalid input or cancelled", fg="red", err=True)
+            except click.Abort:
+                raise
+            except KeyboardInterrupt:
+                click.secho("\n✗ Cancelled", fg="red", err=True)
                 raise click.Abort()
         else:
             selected_artist = matching_artists[0]
