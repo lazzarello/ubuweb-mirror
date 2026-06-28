@@ -6,20 +6,17 @@ This repository uses GitHub Actions for continuous integration.
 
 ### Test Workflow (`.github/workflows/test.yml`)
 
-Runs on every push to `main` and `create-module` branches, and on all pull requests.
+Runs on every push to `main` branch and on all pull requests.
 
-**Matrix Testing:**
-- Python 3.10
-- Python 3.11
-- Python 3.12
+**Python Version:**
+- Python 3.14
 
 **Steps:**
 1. Checkout code
-2. Set up Python
+2. Set up Python 3.14
 3. Install `uv` (with caching enabled)
 4. Install dependencies with `uv sync`
-5. Run custom test runner: `uv run python tests/run_tests.py`
-6. Run pytest: `uv run pytest tests/ -v`
+5. Run pytest: `uv run pytest tests/ -v --tb=short`
 
 ### Lint Workflow (`.github/workflows/lint.yml`)
 
@@ -40,9 +37,9 @@ To run the same tests locally:
 uv sync
 
 # Run tests (matches CI)
-uv run python tests/run_tests.py
+uv run pytest tests/ -v --tb=short
 
-# Or with pytest
+# Or with full tracebacks
 uv run pytest tests/ -v
 ```
 
@@ -60,4 +57,4 @@ Add to README.md:
 - Tests do not require network access (all HTTP calls are mocked)
 - Tests do not require the `/home/lee/jellyfin/ubuweb/` directory
 - FileIndex tests create temporary directories for testing
-- All 48 tests should pass on all Python versions
+- All tests are designed to pass consistently on Python 3.14

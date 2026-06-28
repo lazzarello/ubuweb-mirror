@@ -205,11 +205,11 @@ print(f"You have {len(av_index)} files")
 # With uv (recommended)
 uv run pytest tests/ -v
 
-# Or run the test runner directly
-uv run python tests/run_tests.py
+# With coverage
+uv run pytest tests/ --cov=ubu -v
 
-# Legacy method
-python tests/run_tests.py
+# Run specific test file
+uv run pytest tests/test_cli.py -v
 ```
 
 ## Twitter
