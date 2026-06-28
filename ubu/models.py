@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 # URL and scraping stuff
 import requests
-from urllib.parse import urlparse
+from .url import URL
 from bs4 import BeautifulSoup
 
 # Progress bar
@@ -80,12 +80,11 @@ class Work:
             self.download_alternate_work()
             return None
         if response.url != ERROR_URL:
-            url_parts = urlparse(self.download_url)
-            path = url_parts.path.split("/")
-            filename_base = path[-1]
+            url = URL(self.download_url)
+            filename_base = url.filename
 
             # Determine download path based on file extension
-            if filename_base.lower().endswith((".html", ".htm")):
+            if url.is_html():
                 download_path = HTML_PATH
             else:
                 download_path = DOWNLOAD_PATH
