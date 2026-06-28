@@ -62,7 +62,7 @@ def download_all_works_from(artist):
             work.download_work()
 
 
-def full_download_run(skip_existing=True):
+def full_download_run(skip_existing=True, download_path=None):
     """
     Download all works from all artists in the film archive.
 
@@ -71,14 +71,19 @@ def full_download_run(skip_existing=True):
 
     Args:
         skip_existing: If True, build an index of existing files and skip them
+        download_path: Optional override for download path (defaults to DOWNLOAD_PATH)
     """
+    # Use provided paths or defaults
+    av_path = download_path or DOWNLOAD_PATH
+    html_path_to_use = HTML_PATH  # HTML path not overridable for now
+    
     # Build indices of existing files if skip_existing is enabled
     av_file_index = None
     html_file_index = None
     if skip_existing:
         logging.info("Building index of existing files...")
-        av_file_index = build_file_index(DOWNLOAD_PATH)
-        html_file_index = build_file_index(HTML_PATH)
+        av_file_index = build_file_index(av_path)
+        html_file_index = build_file_index(html_path_to_use)
         total_files = len(av_file_index) + len(html_file_index)
         logging.info(f"Found {len(av_file_index)} A/V files and {len(html_file_index)} HTML files (total: {total_files})")
 
@@ -145,6 +150,10 @@ def full_download_run(skip_existing=True):
     print("=" * 60)
 
     logging.info(f"Download complete: {stats}")
+    
+    # Note: The download_path parameter affects skip_existing index building,
+    # but Work.download_work() still uses constants from models.py.
+    # Full support for custom download paths would require refactoring Work class.
 
 
 def get_url_from_text(text):

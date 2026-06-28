@@ -42,15 +42,16 @@ def cli(ctx, verbose):
         level = logging.WARNING
     elif verbose == 1:
         level = logging.INFO
-    elif verbose >= 2:
+    else:  # verbose >= 2
         level = logging.DEBUG
-    else:
-        level = logging.WARNING
     
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    # Configure root logger (suppress downloader.py's conflicting config)
+    root_logger = logging.getLogger()
+    if not root_logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+        root_logger.addHandler(handler)
+    root_logger.setLevel(level)
     
     ctx.obj['verbose'] = verbose
 
@@ -90,13 +91,12 @@ def download(ctx, no_skip, download_path):
     else:
         click.echo("Running with skip-existing DISABLED (will re-check all files)")
     
-    path = download_path or DOWNLOAD_PATH
-    click.echo(f"Download path: {path}")
+    click.echo(f"Download path: {download_path or DOWNLOAD_PATH}")
     click.echo()
     
     # Run the full download
     try:
-        full_download_run(skip_existing=skip_existing)
+        full_download_run(skip_existing=skip_existing, download_path=download_path)
         click.secho("✓ Download complete!", fg="green")
     except Exception as e:
         click.secho(f"✗ Error during download: {e}", fg="red", err=True)
@@ -287,26 +287,22 @@ def _generate_csv_report(artists, page, output):
     import csv
     import io
     
-    output_buffer = io.StringIO() if not output else None
-    
     if output:
-        f = open(output, 'w', newline='')
-        writer = csv.writer(f)
+        with open(output, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
+            for artist in artists:
+                works = page.get_artist_works(artist)
+                for work in works:
+                    writer.writerow([artist.name, artist.url, work.name, work.url])
     else:
+        output_buffer = io.StringIO()
         writer = csv.writer(output_buffer)
-    
-    # Write header
-    writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
-    
-    # Write data
-    for artist in artists:
-        works = page.get_artist_works(artist)
-        for work in works:
-            writer.writerow([artist.name, artist.url, work.name, work.url])
-    
-    if output:
-        f.close()
-    else:
+        writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
+        for artist in artists:
+            works = page.get_artist_works(artist)
+            for work in works:
+                writer.writerow([artist.name, artist.url, work.name, work.url])
         click.echo(output_buffer.getvalue())
 
 
@@ -342,17 +338,20 @@ def random(ctx, artist_name):
             for i, artist in enumerate(matching_artists, 1):
                 click.echo(f"  {i}. {artist.name}")
             
-            choice = click.prompt("Select artist number", type=int)
-            if choice < 1 or choice > len(matching_artists):
-                click.secho("✗ Invalid selection", fg="red", err=True)
+            try:
+                choice = click.prompt("Select artist number", type=int)
+                if choice < 1 or choice > len(matching_artists):
+                    click.secho("✗ Invalid selection", fg="red", err=True)
+                    raise click.Abort()
+                selected_artist = matching_artists[choice - 1]
+            except (ValueError, KeyboardInterrupt):
+                click.secho("\n✗ Invalid input or cancelled", fg="red", err=True)
                 raise click.Abort()
-            
-            selected_artist = matching_artists[choice - 1]
         else:
             selected_artist = matching_artists[0]
         
         click.echo(f"Downloading random work from: {selected_artist.name}")
-        download_all_works_from(selected_artist)
+        download_random_work_from([selected_artist])
     else:
         click.echo("Downloading random work from random artist...")
         download_random_work_from(artists)

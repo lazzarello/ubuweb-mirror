@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 # file utils
 from os.path import exists
+import os
 # custom constants
 from .constants import *
 # Javascript rendering
@@ -72,7 +73,6 @@ class Work:
             else:
                 download_path = DOWNLOAD_PATH
             
-            import os
             filename = os.path.join(download_path, filename_base)
             logging.debug(filename)
             print(filename)
