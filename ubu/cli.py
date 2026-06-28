@@ -311,7 +311,7 @@ def _generate_csv_report(artists, page, output):
     import io
 
     if output:
-        with open(output, "w", newline="") as f:
+        with open(output, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow(["Artist Name", "Artist URL", "Work Name", "Work URL"])
             for artist in artists:
