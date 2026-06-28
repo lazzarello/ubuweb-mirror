@@ -1,51 +1,35 @@
-"""
-Twitter monitoring script for UbuWeb updates.
+"""DEPRECATED: Twitter monitoring script for UbuWeb updates.
 
-This script monitors @ubuweb on Twitter and downloads new content as it's posted.
-Requires Twitter API credentials in environment variables.
+WARNING: This script is no longer functional due to Twitter/X shutting down 
+their free API access.
 
-Usage:
-    source environments  # Load Twitter API credentials
-    python twitter_monitor.py
-"""
+This file is kept for historical reference only.
 
-import ubu
-from time import sleep
-
-twitter_poll_freq = 3600  # 1 hour
-
-
-def main():
-    """
-    Main function - monitors Twitter for new UbuWeb posts and downloads them.
-    """
-    print("Starting Twitter monitoring for @ubuweb...")
-    print(f"Poll frequency: {twitter_poll_freq} seconds ({twitter_poll_freq/3600:.1f} hours)")
-    print()
+ALTERNATIVE: Use periodic full scans with skip-existing instead:
     
-    t = ubu.Tweets()
-    last_tweet = None
+    # Manual run
+    uv run python main.py
     
-    while True:
-        try:
-            current_tweet = t.get_latest_tweet().data
-            
-            if last_tweet is None:
-                print(f"Initial tweet found: {current_tweet.text[:50]}...")
-                last_tweet = current_tweet
-                ubu.download_from_tweet(current_tweet)
-            elif last_tweet.id == current_tweet.id:
-                print("No new tweets")
-            else:
-                print(f"New tweet found! {current_tweet.text[:50]}...")
-                ubu.download_from_tweet(current_tweet)
-                last_tweet = current_tweet
-                
-        except Exception as e:
-            print(f"Error: {e}")
-            
-        sleep(twitter_poll_freq)
+    # Or set up a cron job for automatic updates
+    0 2 * * * cd /path/to/ubuweb-mirror && uv run python main.py >> /var/log/ubuweb.log 2>&1
 
+The skip-existing feature will efficiently download only new files.
+"""
 
-if __name__ == "__main__":
-    main()
+import sys
+import warnings
+
+warnings.warn(
+    "twitter_monitor.py is DEPRECATED. Twitter API is no longer available. "
+    "Use 'uv run python main.py' with skip-existing instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# Original functionality no longer works due to Twitter API shutdown
+print("ERROR: This script is deprecated and non-functional.")
+print("Twitter/X has shut down their free API access.")
+print()
+print("Please use 'uv run python main.py' instead for incremental downloads.")
+print("See TWITTER_DEPRECATION.md for details.")
+sys.exit(1)

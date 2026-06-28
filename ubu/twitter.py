@@ -1,7 +1,25 @@
+"""DEPRECATED: Twitter API integration (no longer functional).
+
+Twitter/X shut down their free API access, making this module non-functional.
+This code is kept for historical reference and potential future alternatives.
+
+For monitoring UbuWeb updates, use periodic full scans instead:
+    uv run python main.py  # Uses skip-existing feature
+"""
+
 import tweepy
 import requests
 import re
 from os import environ
+import warnings
+
+warnings.warn(
+    "Twitter API integration is deprecated. Twitter/X has shut down free API access. "
+    "Use periodic full downloads with skip-existing instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 
 class Tweets:
     def __init__(self):

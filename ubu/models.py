@@ -146,9 +146,6 @@ class Page:
         try:
             page = requests.get(url)
             tables = self.get_tables(page)
-            # Stupid error handling for DMCA takedown pages
-            # links = tables[1].find_all("a", string=lambda text: "Marian Goodman" not in text or text is not None)
-            # TODO remove magic string and just write the bad data like previously, logging failure
             if len(tables) < 2:
                 logging.error(f"Page {url} does not have enough tables (found {len(tables)}, need at least 2)")
                 return []
