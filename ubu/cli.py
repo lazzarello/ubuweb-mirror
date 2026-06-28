@@ -238,11 +238,13 @@ def _generate_text_report(artists, page, output):
             lines.append(f"  Works: {len(works)}")
             lines.append("")
         except Exception:
-            logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+            logging.error(
+                f"Failed to get works for artist: {artist.name}", exc_info=True
+            )
             errors += 1
             lines.append(f"{artist.name} [ERROR]")
             lines.append(f"  URL: {artist.url}")
-            lines.append(f"  Works: Unable to retrieve")
+            lines.append("  Works: Unable to retrieve")
             lines.append("")
 
     lines.append("=" * 60)
@@ -280,7 +282,9 @@ def _generate_json_report(artists, page, output):
             }
             data["artists"].append(artist_data)
         except Exception:
-            logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
+            logging.error(
+                f"Failed to get works for artist: {artist.name}", exc_info=True
+            )
             data["errors"] += 1
             artist_data = {
                 "name": artist.name,
@@ -316,8 +320,12 @@ def _generate_csv_report(artists, page, output):
                     for work in works:
                         writer.writerow([artist.name, artist.url, work.name, work.url])
                 except Exception:
-                    logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
-                    writer.writerow([artist.name, artist.url, "ERROR", "Failed to retrieve works"])
+                    logging.error(
+                        f"Failed to get works for artist: {artist.name}", exc_info=True
+                    )
+                    writer.writerow(
+                        [artist.name, artist.url, "ERROR", "Failed to retrieve works"]
+                    )
     else:
         output_buffer = io.StringIO()
         writer = csv.writer(output_buffer)
@@ -328,8 +336,12 @@ def _generate_csv_report(artists, page, output):
                 for work in works:
                     writer.writerow([artist.name, artist.url, work.name, work.url])
             except Exception:
-                logging.error(f"Failed to get works for artist: {artist.name}", exc_info=True)
-                writer.writerow([artist.name, artist.url, "ERROR", "Failed to retrieve works"])
+                logging.error(
+                    f"Failed to get works for artist: {artist.name}", exc_info=True
+                )
+                writer.writerow(
+                    [artist.name, artist.url, "ERROR", "Failed to retrieve works"]
+                )
         click.echo(output_buffer.getvalue())
 
 
