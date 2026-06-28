@@ -5,6 +5,7 @@ beautifulsoup4
 tqdm
 youtube-dl
 tweepy
+click>=8.0.0
 
 # Development dependencies (optional)
 # Install with: pip install -r requirements-dev.txt

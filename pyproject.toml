@@ -26,6 +26,7 @@ dependencies = [
     "tqdm",
     "youtube-dl",
     "tweepy",
+    "click>=8.0.0",
 ]
 
 [project.optional-dependencies]
@@ -35,7 +36,8 @@ dev = [
 ]
 
 [project.scripts]
-ubu-download = "ubu.__main__:main"
+ubu = "ubu.cli:main"
+ubu-download = "ubu.cli:main"
 
 [build-system]
 requires = ["hatchling"]
