@@ -46,7 +46,7 @@ def cli(ctx, verbose):
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler("transfers.log", mode="a"),
+            logging.FileHandler("transfers.log", mode="a", encoding="utf-8"),
         ],
         force=True,
     )
