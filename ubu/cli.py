@@ -256,7 +256,7 @@ def _generate_text_report(artists, page, output):
     report_text = "\n".join(lines)
 
     if output:
-        with open(output, "w") as f:
+        with open(output, "w", encoding="utf-8") as f:
             f.write(report_text)
     else:
         click.echo(report_text)
