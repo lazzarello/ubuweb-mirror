@@ -37,6 +37,14 @@ class URL:
     
     def __post_init__(self):
         """Validate and parse the URL after initialization."""
+        # Type validation
+        if not isinstance(self._url, str):
+            raise TypeError(f"URL must be a string, got {type(self._url).__name__}")
+        
+        # Empty string validation
+        if not self._url or not self._url.strip():
+            raise ValueError("URL cannot be empty")
+        
         # Parse the URL
         parsed = urlparse(self._url)
         
@@ -317,5 +325,5 @@ def is_valid_url(url_string: str) -> bool:
     try:
         url = URL(url_string)
         return url.validate()
-    except Exception:
+    except (ValueError, TypeError):
         return False
