@@ -274,6 +274,78 @@ def test_url_special_characters_in_path():
     print("✓ URL with special characters works correctly")
 
 
+def test_url_empty_string_validation():
+    """Test that empty strings raise ValueError."""
+    try:
+        URL("")
+        assert False, "Empty string should raise ValueError"
+    except ValueError as e:
+        assert "cannot be empty" in str(e)
+    
+    try:
+        URL("   ")
+        assert False, "Whitespace-only string should raise ValueError"
+    except ValueError as e:
+        assert "cannot be empty" in str(e)
+    
+    print("✓ Empty string validation works correctly")
+
+
+def test_url_type_validation():
+    """Test that non-string types raise TypeError."""
+    try:
+        URL(123)
+        assert False, "Integer should raise TypeError"
+    except TypeError as e:
+        assert "must be a string" in str(e)
+    
+    try:
+        URL(None)
+        assert False, "None should raise TypeError"
+    except TypeError as e:
+        assert "must be a string" in str(e)
+    
+    try:
+        URL(["https://example.com"])
+        assert False, "List should raise TypeError"
+    except TypeError as e:
+        assert "must be a string" in str(e)
+    
+    print("✓ Type validation works correctly")
+
+
+def test_url_malformed_scheme_validation():
+    """Test that malformed schemes are rejected and valid schemes are kept."""
+    # Scheme with special characters should be rejected
+    try:
+        URL("ht!tp://example.com")
+        assert False, "Scheme with special characters should raise ValueError"
+    except ValueError as e:
+        assert "Malformed URL" in str(e) or "Invalid URL scheme" in str(e)
+    
+    try:
+        URL("123://example.com")
+        assert False, "Scheme starting with number should raise ValueError"
+    except ValueError as e:
+        assert "Malformed URL" in str(e) or "Invalid URL scheme" in str(e)
+    
+    # Valid schemes should work (including uncommon ones like 'htp')
+    # The key fix is that 'htp://example.com' stays as-is and doesn't
+    # become 'https://htp://example.com' due to normalization
+    url = URL("https://example.com")
+    assert url.scheme == "https"
+    
+    url2 = URL("ftp://example.com")
+    assert url2.scheme == "ftp"
+    
+    # Even uncommon schemes are preserved if they match the format
+    url3 = URL("htp://example.com")
+    assert url3.scheme == "htp"
+    assert str(url3) == "htp://example.com"  # Not normalized to https://htp://...
+    
+    print("✓ Malformed scheme validation works correctly")
+
+
 if __name__ == "__main__":
     # Run tests with verbose output
     print("Testing URL class...\n")
@@ -302,5 +374,8 @@ if __name__ == "__main__":
     test_url_with_port()
     test_url_normalization()
     test_url_special_characters_in_path()
+    test_url_empty_string_validation()
+    test_url_type_validation()
+    test_url_malformed_scheme_validation()
     
     print("\n✓ All URL tests passed!")

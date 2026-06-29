@@ -80,7 +80,12 @@ class Work:
             self.download_alternate_work()
             return None
         if response.url != ERROR_URL:
-            url = URL(self.download_url)
+            try:
+                url = URL(self.download_url)
+            except (ValueError, TypeError) as e:
+                logging.error(f"Invalid download URL '{self.download_url}': {e}")
+                return None
+            
             filename_base = url.filename
 
             # Determine download path based on file extension

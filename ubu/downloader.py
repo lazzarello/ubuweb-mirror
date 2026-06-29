@@ -105,7 +105,13 @@ def full_download_run(skip_existing=True, download_path=None):
                 if work.download_url:
                     # Check if file exists in appropriate index
                     if av_file_index or html_file_index:
-                        url = URL(work.download_url)
+                        try:
+                            url = URL(work.download_url)
+                        except (ValueError, TypeError) as e:
+                            logging.error(f"Invalid download URL for {work.name}: {e}")
+                            stats["errors"] += 1
+                            continue
+                        
                         filename = url.filename
 
                         # Check if it's an HTML file

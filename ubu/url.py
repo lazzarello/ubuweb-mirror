@@ -51,9 +51,18 @@ class URL:
         # Store parsed result using object.__setattr__ since dataclass is frozen
         object.__setattr__(self, '_parsed', parsed)
         
-        # Basic validation
+        # If '://' is present, validate the scheme
+        if '://' in self._url:
+            if not parsed.scheme:
+                # urlparse didn't recognize a scheme, likely malformed
+                raise ValueError(f"Malformed URL: contains '://' but no valid scheme")
+            # Validate scheme format (must be alphanumeric + plus/dot/hyphen)
+            valid_scheme_pattern = r'^[a-zA-Z][a-zA-Z0-9+.\-]*$'
+            if not re.match(valid_scheme_pattern, parsed.scheme):
+                raise ValueError(f"Invalid URL scheme: {parsed.scheme}")
+        
+        # If no scheme provided and no '://' present, assume https
         if not self._parsed.scheme and '://' not in self._url:
-            # If no scheme provided, assume https
             normalized_url = f"https://{self._url}"
             parsed = urlparse(normalized_url)
             object.__setattr__(self, '_url', normalized_url)
