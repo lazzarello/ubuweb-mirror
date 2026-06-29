@@ -71,21 +71,24 @@ class Work:
             ydl.download([iframe["src"]])
 
     def download_work(self):
-        if self.download_url is not None:
-            response = requests.get(self.download_url, stream=True, timeout=30)
-        else:
+        if self.download_url is None:
             logging.info(
                 "whoopsy daisy, can't find a download_url, try alternate download function"
             )
             self.download_alternate_work()
             return None
+        
+        # Validate and normalize URL before making the request
+        try:
+            url = URL(self.download_url)
+        except (ValueError, TypeError) as e:
+            logging.error(f"Invalid download URL '{self.download_url}': {e}")
+            return None
+        
+        # Use the normalized URL string for the request
+        response = requests.get(str(url), stream=True, timeout=30)
+        
         if response.url != ERROR_URL:
-            try:
-                url = URL(self.download_url)
-            except (ValueError, TypeError) as e:
-                logging.error(f"Invalid download URL '{self.download_url}': {e}")
-                return None
-
             filename_base = url.filename
 
             # Determine download path based on file extension

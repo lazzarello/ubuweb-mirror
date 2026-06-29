@@ -6,7 +6,7 @@ throughout the codebase, offering better validation, normalization, and a cleane
 """
 
 from urllib.parse import urlparse, urlunparse, urljoin
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 import re
 
