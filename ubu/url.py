@@ -33,7 +33,7 @@ class URL:
     """
 
     _url: str
-    _parsed: object = None
+    _parsed: object = field(default=None, init=False, repr=False, compare=False)
 
     def __post_init__(self):
         """Validate and parse the URL after initialization."""
