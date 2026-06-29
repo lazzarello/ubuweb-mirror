@@ -71,21 +71,12 @@ Write a tool to graph and analyze download statistics from logs.
 
 ### Refactor Page Model
 Refactor Page class to only accept URL objects for all methods.
-- [ ] Build URL class (see next item)
 - [ ] Update Page to accept URL objects only
 - [ ] Remove artist object parameter handling
 - [ ] Consider Page base class with subclasses for different page types
 
-**Related files:** `models.py:123`
-
-### Build URL Object
-Create a URL class to encapsulate URL handling and validation.
-- [ ] Design URL class interface
-- [ ] Migrate from string/urllib.parse usage
-- [ ] Add validation and normalization
-- [ ] Update all URL handling code
-
-**Related files:** `models.py:125`
+**Related files:** `models.py:123`  
+**Note:** URL class now complete, ready for Page migration
 
 ### Broken Links Model Extension
 Extend broken links and zero-content pages model to always represent accurate broken state.
@@ -137,6 +128,7 @@ Extend support for the reading/text section of UbuWeb.
 
 ## Completed
 
+- [x] Build URL Object - Created URL class in ubu/url.py with validation, normalization, and rich API
 - [x] DMCA magic string removal (models.py:151) - Removed obsolete commented code
 - [x] Command Line Arguments with Click - Added comprehensive CLI with download, analyze, report, and random commands; verbosity controls; console script entry points; and test suite
 

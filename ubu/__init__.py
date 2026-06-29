@@ -8,6 +8,7 @@ Main Components:
     - Artist: Data class representing an artist in the archive
     - Work, FilmWork, SoundWork: Classes representing individual works
     - Page: Parser for extracting artists and works from HTML pages
+    - URL: Immutable URL class with validation and normalization
     - download functions: High-level functions for downloading content
 
 Example:

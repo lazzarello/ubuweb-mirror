@@ -7,8 +7,11 @@ The `URL` class provides better encapsulation for URL handling and validation th
 ## Features
 
 - **Immutable**: URL objects are frozen dataclasses and cannot be modified after creation
-- **Validation**: Built-in URL validation for scheme, hostname, and structure
-- **Normalization**: Automatically adds `https://` scheme if missing
+- **Validation**: Built-in URL validation for scheme, hostname, and structure with clear error messages
+  - Rejects empty strings (ValueError)
+  - Rejects non-string types (TypeError)
+  - Validates scheme format (ValueError for malformed schemes)
+- **Normalization**: Automatically adds `https://` scheme if missing (only when no scheme delimiter present)
 - **Rich API**: Easy access to URL components (scheme, hostname, path, filename, etc.)
 - **Type-safe**: Provides clear type hints for all methods and properties
 - **Hashable**: Can be used in sets and as dictionary keys
@@ -36,6 +39,40 @@ url = URL("www.ubu.com/film/video.mp4")  # Becomes https://www.ubu.com/film/vide
 
 # Using the parse classmethod (alternative syntax)
 url = URL.parse("https://www.ubu.com/film/")
+```
+
+### Error Handling
+
+The URL class validates input and raises exceptions for invalid URLs:
+
+```python
+from ubu import URL
+
+# Empty strings raise ValueError
+try:
+    url = URL("")
+except ValueError as e:
+    print(f"Error: {e}")  # "URL cannot be empty"
+
+# Non-string types raise TypeError
+try:
+    url = URL(123)
+except TypeError as e:
+    print(f"Error: {e}")  # "URL must be a string, got int"
+
+# Malformed schemes raise ValueError
+try:
+    url = URL("ht!tp://example.com")
+except ValueError as e:
+    print(f"Error: {e}")  # "Invalid URL scheme: ht!tp"
+
+# Always wrap URL creation in try/except when working with untrusted input
+try:
+    url = URL(user_input)
+    # Use url safely here
+except (ValueError, TypeError) as e:
+    logging.error(f"Invalid URL: {e}")
+    # Handle error appropriately
 ```
 
 ### Accessing URL Components
@@ -181,17 +218,27 @@ is_html = url.is_html()
 
 ## Examples from the Codebase
 
-### In models.py
+### In models.py (with error handling)
 
 ```python
 from .url import URL
+import logging
 
 def download_work(self):
     if self.download_url is not None:
         response = requests.get(self.download_url, stream=True, timeout=30)
+    else:
+        logging.info("whoopsy daisy, can't find a download_url")
+        self.download_alternate_work()
+        return None
+    
+    if response.url != ERROR_URL:
+        try:
+            url = URL(self.download_url)
+        except (ValueError, TypeError) as e:
+            logging.error(f"Invalid download URL '{self.download_url}': {e}")
+            return None
         
-        # Use URL class for path handling
-        url = URL(self.download_url)
         filename_base = url.filename
         
         # Check if HTML using URL method
@@ -201,13 +248,20 @@ def download_work(self):
             download_path = DOWNLOAD_PATH
 ```
 
-### In downloader.py
+### In downloader.py (with error handling)
 
 ```python
 from .url import URL
+import logging
 
-# Extract filename from URL
-url = URL(work.download_url)
+# Safely extract filename from URL
+try:
+    url = URL(work.download_url)
+except (ValueError, TypeError) as e:
+    logging.error(f"Invalid download URL for {work.name}: {e}")
+    stats["errors"] += 1
+    continue
+
 filename = url.filename
 
 # Check if HTML file
@@ -234,11 +288,12 @@ The URL class has comprehensive test coverage in `tests/test_url.py`:
 pytest tests/test_url.py -v
 ```
 
-All 24 tests verify:
+All 27 tests verify:
 - URL creation and parsing
 - Component extraction (filename, extension, path parts)
 - URL operations (join, with_scheme, with_path)
 - Validation and checks (is_html, is_secure, is_absolute)
+- Input validation (empty strings, non-string types, malformed schemes)
 - Immutability and hashability
 - String conversion and comparison
 
