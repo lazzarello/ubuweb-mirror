@@ -136,8 +136,9 @@ def test_file_index_nonexistent_directory():
 def test_file_index_with_real_jellyfin_path():
     """Test with the actual jellyfin path (read-only check)."""
     import ubu
+    import os
 
-    jellyfin_path = "/home/lee/jellyfin/ubuweb/"
+    jellyfin_path = os.path.expanduser("~/jellyfin/ubuweb/")
 
     if not Path(jellyfin_path).exists():
         print("⚠ Skipping real path test - directory doesn't exist")
