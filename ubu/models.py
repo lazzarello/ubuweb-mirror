@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 # URL and scraping stuff
 import requests
-from urllib.parse import urlparse
+from .url import URL
 from bs4 import BeautifulSoup
 
 # Progress bar
@@ -71,21 +71,28 @@ class Work:
             ydl.download([iframe["src"]])
 
     def download_work(self):
-        if self.download_url is not None:
-            response = requests.get(self.download_url, stream=True, timeout=30)
-        else:
+        if self.download_url is None:
             logging.info(
                 "whoopsy daisy, can't find a download_url, try alternate download function"
             )
             self.download_alternate_work()
             return None
+        
+        # Validate and normalize URL before making the request
+        try:
+            url = URL(self.download_url)
+        except (ValueError, TypeError) as e:
+            logging.error(f"Invalid download URL '{self.download_url}': {e}")
+            return None
+        
+        # Use the normalized URL string for the request
+        response = requests.get(str(url), stream=True, timeout=30)
+        
         if response.url != ERROR_URL:
-            url_parts = urlparse(self.download_url)
-            path = url_parts.path.split("/")
-            filename_base = path[-1]
+            filename_base = url.filename
 
             # Determine download path based on file extension
-            if filename_base.lower().endswith((".html", ".htm")):
+            if url.is_html():
                 download_path = HTML_PATH
             else:
                 download_path = DOWNLOAD_PATH
@@ -93,7 +100,8 @@ class Work:
             filename = os.path.join(download_path, filename_base)
             logging.debug(filename)
             print(filename)
-            # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
+            # copypasta
+            # https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
             size_in_bytes = int(response.headers.get("content-length", 0))
             block_size = 1024
             progress_bar = tqdm(total=size_in_bytes, unit="iB", unit_scale=True)
@@ -141,7 +149,8 @@ class FilmWork(Work):
 
 @dataclass
 class SoundWork(Work):
-    # This is just a preview, the real links are in a less well tagged ol element, but that ight be the only one so yuea!
+    # This is just a preview, the real links are in a less well tagged ol
+    # element, but that ight be the only one so yuea!
     def get_media_url(self, url):
         session = HTMLSession()
         response = session.get(url, timeout=30)

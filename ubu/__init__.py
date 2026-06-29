@@ -8,6 +8,7 @@ Main Components:
     - Artist: Data class representing an artist in the archive
     - Work, FilmWork, SoundWork: Classes representing individual works
     - Page: Parser for extracting artists and works from HTML pages
+    - URL: Immutable URL class with validation and normalization
     - download functions: High-level functions for downloading content
 
 Example:
@@ -50,6 +51,11 @@ from .file_index import (
 
 from .twitter import Tweets
 
+from .url import (
+    URL,
+    is_valid_url,
+)
+
 __version__ = "0.1.0"
 __all__ = [
     # Constants
@@ -77,4 +83,7 @@ __all__ = [
     "build_file_index",
     # Twitter
     "Tweets",
+    # URL
+    "URL",
+    "is_valid_url",
 ]

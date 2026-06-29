@@ -39,8 +39,8 @@ def test_module_all_exports():
 
     assert hasattr(ubu, "__all__")
     assert (
-        len(ubu.__all__) == 20
-    )  # 7 constants + 5 models + 5 functions + 2 file_index + 1 twitter
+        len(ubu.__all__) == 22
+    )  # 7 constants + 5 models + 5 functions + 2 file_index + 1 twitter + 2 url
     print(f"✓ Module exports {len(ubu.__all__)} items")
 
 
@@ -134,6 +134,21 @@ def test_twitter_class_available():
     print("✓ Tweets class available")
 
 
+def test_url_classes_available():
+    """Test that URL class and function are exported."""
+    import ubu
+
+    assert hasattr(ubu, "URL")
+    assert "URL" in ubu.__all__
+    assert callable(ubu.URL)
+
+    assert hasattr(ubu, "is_valid_url")
+    assert "is_valid_url" in ubu.__all__
+    assert callable(ubu.is_valid_url)
+
+    print("✓ URL class and function available")
+
+
 def test_submodules_not_directly_exposed():
     """Test that internal submodules are not directly in namespace."""
     import ubu
@@ -177,6 +192,7 @@ if __name__ == "__main__":
     test_model_classes_available()
     test_downloader_functions_available()
     test_twitter_class_available()
+    test_url_classes_available()
     test_submodules_not_directly_exposed()
     test_no_import_errors()
 

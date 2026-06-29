@@ -8,7 +8,7 @@ including random downloads, full archive runs, and tweet-based downloads.
 from .models import Page, Work
 from .constants import FILM_URL, DOWNLOAD_PATH, HTML_PATH
 from .file_index import build_file_index
-from urllib.parse import urlparse
+from .url import URL
 import random
 import logging
 import re
@@ -105,11 +105,18 @@ def full_download_run(skip_existing=True, download_path=None):
                 if work.download_url:
                     # Check if file exists in appropriate index
                     if av_file_index or html_file_index:
-                        url_parts = urlparse(work.download_url)
-                        filename = url_parts.path.split("/")[-1]
+                        try:
+                            url = URL(work.download_url)
+                            work.download_url = str(url)
+                        except (ValueError, TypeError) as e:
+                            logging.error(f'Invalid download URL for {work.name}: {e}')
+                            stats['errors'] += 1
+                            continue
+
+                        filename = url.filename
 
                         # Check if it's an HTML file
-                        is_html = filename.lower().endswith((".html", ".htm"))
+                        is_html = url.is_html()
                         file_index = html_file_index if is_html else av_file_index
 
                         if file_index and file_index.has_file(filename):
