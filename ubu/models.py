@@ -85,7 +85,7 @@ class Work:
             except (ValueError, TypeError) as e:
                 logging.error(f"Invalid download URL '{self.download_url}': {e}")
                 return None
-            
+
             filename_base = url.filename
 
             # Determine download path based on file extension
@@ -97,7 +97,8 @@ class Work:
             filename = os.path.join(download_path, filename_base)
             logging.debug(filename)
             print(filename)
-            # copypasta https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
+            # copypasta
+            # https://stackoverflow.com/questions/37573483/progress-bar-while-download-file-over-http-with-requests
             size_in_bytes = int(response.headers.get("content-length", 0))
             block_size = 1024
             progress_bar = tqdm(total=size_in_bytes, unit="iB", unit_scale=True)
@@ -145,7 +146,8 @@ class FilmWork(Work):
 
 @dataclass
 class SoundWork(Work):
-    # This is just a preview, the real links are in a less well tagged ol element, but that ight be the only one so yuea!
+    # This is just a preview, the real links are in a less well tagged ol
+    # element, but that ight be the only one so yuea!
     def get_media_url(self, url):
         session = HTMLSession()
         response = session.get(url, timeout=30)

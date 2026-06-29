@@ -111,7 +111,7 @@ def full_download_run(skip_existing=True, download_path=None):
                             logging.error(f"Invalid download URL for {work.name}: {e}")
                             stats["errors"] += 1
                             continue
-                        
+
                         filename = url.filename
 
                         # Check if it's an HTML file
