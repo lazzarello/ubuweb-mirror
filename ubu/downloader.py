@@ -107,9 +107,10 @@ def full_download_run(skip_existing=True, download_path=None):
                     if av_file_index or html_file_index:
                         try:
                             url = URL(work.download_url)
+                            work.download_url = str(url)
                         except (ValueError, TypeError) as e:
-                            logging.error(f"Invalid download URL for {work.name}: {e}")
-                            stats["errors"] += 1
+                            logging.error(f'Invalid download URL for {work.name}: {e}')
+                            stats['errors'] += 1
                             continue
 
                         filename = url.filename
