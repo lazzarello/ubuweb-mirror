@@ -63,7 +63,10 @@ class URL:
 
         # If no scheme provided and no '://' present, assume https
         if not self._parsed.scheme and '://' not in self._url:
-            normalized_url = f"https://{self._url}"
+            if self._url.startswith('//'):
+                normalized_url = f'https:{self._url}'
+            else:
+                normalized_url = f'https://{self._url}'
             parsed = urlparse(normalized_url)
             object.__setattr__(self, '_url', normalized_url)
             object.__setattr__(self, '_parsed', parsed)
